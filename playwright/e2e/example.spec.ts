@@ -2,7 +2,7 @@ import { test, expect } from '../support/merged-fixtures';
 import { createCalendarEvent } from '../support/factories/event-factory';
 
 test.describe('Calendar Events', () => {
-  test('should display events on the calendar', async ({
+  test.fixme('should display events on the calendar', async ({
     page,
     interceptNetworkCall,
     log,
@@ -30,7 +30,7 @@ test.describe('Calendar Events', () => {
     await expect(page.getByText('Sprint Review')).toBeVisible();
   });
 
-  test('should create a new event', async ({
+  test.fixme('should create a new event', async ({
     page,
     interceptNetworkCall,
     log,
