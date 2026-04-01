@@ -114,16 +114,17 @@ jobs:
         id: changed-tests
         run: |
           CHANGED_SPECS=$(git diff --name-only origin/main...HEAD -- 'playwright/e2e/**' | grep -E '\.(spec|test)\.(ts|js)$' || echo "")
-          echo "specs=$CHANGED_SPECS" >> "$GITHUB_OUTPUT"
           if [ -n "$CHANGED_SPECS" ]; then
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
             echo "Found changed E2E specs:"
             echo "$CHANGED_SPECS"
           else
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
             echo "No changed E2E specs found"
           fi
 
       - name: Run burn-in on changed specs (10 iterations)
-        if: steps.changed-tests.outputs.specs != ''
+        if: steps.changed-tests.outputs.has_changes == 'true'
         run: |
           echo "Starting burn-in loop - detecting flaky tests"
           for i in {1..10}; do
