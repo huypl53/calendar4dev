@@ -70,5 +70,14 @@ Copy `.env.example` to `.env` and configure:
 | `LOG_LEVEL` | `info` | Log verbosity |
 | `PORT` | `3000` | Production server port |
 | `API_PORT` | `3001` | API dev server port |
+| `CORS_ORIGIN` | `*` | Allowed CORS origins (comma-separated) |
 
 Environment variables are validated by Zod at startup. Missing required vars cause a clear error and exit.
+
+## API Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /healthz` | Health check — returns DB status + uptime |
+| `GET /api/openapi.json` | OpenAPI 3.0 spec |
+| `GET /api/docs` | Scalar API reference UI |
