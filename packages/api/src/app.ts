@@ -2,7 +2,7 @@ import { OpenAPIHono } from '@hono/zod-openapi'
 import { apiReference } from '@scalar/hono-api-reference'
 import { requestLogger } from './middleware/logger.js'
 import { corsMiddleware } from './middleware/cors.js'
-import { defaultLimiter } from './middleware/rate-limiter.js'
+import { defaultLimiter, authLimiter } from './middleware/rate-limiter.js'
 import { errorHandler } from './middleware/error-handler.js'
 import { mountRoutes } from './routes/index.js'
 
@@ -14,6 +14,7 @@ app.onError(errorHandler)
 app.use(requestLogger)
 app.use(corsMiddleware)
 app.use('/api/*', defaultLimiter)
+app.use('/api/auth/*', authLimiter)
 
 // Mount routes
 mountRoutes(app)

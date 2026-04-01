@@ -1,6 +1,7 @@
 import { OpenAPIHono, createRoute, z } from '@hono/zod-openapi'
 import { sql } from 'drizzle-orm'
 import { db } from '../db/client.js'
+import { logger } from '../middleware/logger.js'
 
 const healthySchema = z.object({
   status: z.literal('healthy'),
@@ -42,11 +43,11 @@ app.openapi(healthRoute, async (c) => {
       uptime: process.uptime(),
     }, 200)
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error'
+    logger.error({ err }, 'Health check DB query failed')
     return c.json({
       status: 'unhealthy' as const,
       db: 'disconnected' as const,
-      error: message,
+      error: 'Database connection failed',
     }, 503)
   }
 })

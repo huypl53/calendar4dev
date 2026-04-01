@@ -35,6 +35,6 @@ describe('GET /healthz', () => {
     const body = await res.json()
     expect(body.status).toBe('unhealthy')
     expect(body.db).toBe('disconnected')
-    expect(body.error).toBe('connection refused')
+    expect(body.error).toBe('Database connection failed')
   })
 })
