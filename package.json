@@ -14,5 +14,10 @@
   },
   "engines": {
     "node": ">=22"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^10.4.0",
+    "@playwright/test": "^1.59.0",
+    "dotenv": "^17.3.1"
   }
 }
