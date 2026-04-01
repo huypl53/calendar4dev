@@ -4,5 +4,11 @@ dist/
 .env.local
 .turbo
 *.log
+*.tsbuildinfo
 .DS_Store
 .worktrees/
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.auth/
