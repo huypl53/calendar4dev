@@ -35,4 +35,14 @@ describe('sessions table schema', () => {
     expect(userIdCol.notNull).toBe(true)
     expect(config.foreignKeys.length).toBeGreaterThanOrEqual(1)
   })
+
+  it('has index on userId', () => {
+    const idx = config.indexes.find(i => i.config.name === 'idx_sessions_user_id')
+    expect(idx).toBeDefined()
+  })
+
+  it('has index on expiresAt', () => {
+    const idx = config.indexes.find(i => i.config.name === 'idx_sessions_expires_at')
+    expect(idx).toBeDefined()
+  })
 })

@@ -21,7 +21,6 @@
     "vitest": "^3.1.0"
   },
   "dependencies": {
-    "@paralleldrive/cuid2": "^3.3.0",
     "zod": "^3.24.0"
   }
 }

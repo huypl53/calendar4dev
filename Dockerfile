@@ -36,6 +36,7 @@ RUN pnpm install --prod --frozen-lockfile
 
 COPY --from=build /app/packages/shared/dist packages/shared/dist
 COPY --from=build /app/packages/api/dist packages/api/dist
+COPY --from=build /app/packages/api/src/db/migrations packages/api/dist/db/migrations
 COPY --from=build /app/packages/web/dist web-dist
 
 EXPOSE 3000

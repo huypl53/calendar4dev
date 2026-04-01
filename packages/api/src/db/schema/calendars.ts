@@ -1,8 +1,9 @@
 import { pgTable, pgEnum, varchar, text, boolean, timestamp, uniqueIndex, index } from 'drizzle-orm/pg-core'
 import { createId } from '@paralleldrive/cuid2'
+import { CALENDAR_PERMISSION_VALUES } from '@dev-calendar/shared'
 import { users } from './users.js'
 
-export const permissionLevelEnum = pgEnum('permission_level', ['free_busy', 'details', 'edit', 'admin'])
+export const permissionLevelEnum = pgEnum('permission_level', CALENDAR_PERMISSION_VALUES)
 
 export const calendars = pgTable('calendars', {
   id: varchar({ length: 128 }).primaryKey().$defaultFn(() => createId()),

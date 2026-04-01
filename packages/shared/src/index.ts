@@ -9,10 +9,8 @@ export type { CreateEvent, UpdateEvent } from './schemas/event.js'
 
 export type { ApiResponse, ListResponse } from './types/api.js'
 export type { User } from './types/user.js'
-export { EventType, EventStatus, EventVisibility, ExceptionType } from './types/event.js'
-export type { EventType as EventTypeType, EventStatus as EventStatusType, EventVisibility as EventVisibilityType, ExceptionType as ExceptionTypeType } from './types/event.js'
-export { CalendarPermission } from './types/calendar.js'
-export type { CalendarPermission as CalendarPermissionType } from './types/calendar.js'
+export { EventType, EventStatus, EventVisibility, ExceptionType, EVENT_TYPE_VALUES, EVENT_STATUS_VALUES, EVENT_VISIBILITY_VALUES, EXCEPTION_TYPE_VALUES } from './types/event.js'
+export { CalendarPermission, CALENDAR_PERMISSION_VALUES } from './types/calendar.js'
 
 export { DEFAULT_EVENT_DURATION } from './constants/defaults.js'
 export { CALENDAR_COLORS } from './constants/colors.js'

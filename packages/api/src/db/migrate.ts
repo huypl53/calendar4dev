@@ -1,8 +1,13 @@
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { migrate } from 'drizzle-orm/postgres-js/migrator'
 import { db } from './client.js'
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const migrationsFolder = path.resolve(__dirname, './migrations')
+
 export async function runMigrations() {
-  await migrate(db, { migrationsFolder: './src/db/migrations' })
+  await migrate(db, { migrationsFolder })
 }
 
 // Run directly when executed as a script

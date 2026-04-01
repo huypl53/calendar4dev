@@ -76,6 +76,8 @@ ALTER TABLE "calendar_members" ADD CONSTRAINT "calendar_members_user_id_users_id
 ALTER TABLE "calendars" ADD CONSTRAINT "calendars_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "event_exceptions" ADD CONSTRAINT "event_exceptions_event_id_events_id_fk" FOREIGN KEY ("event_id") REFERENCES "public"."events"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "events" ADD CONSTRAINT "events_calendar_id_calendars_id_fk" FOREIGN KEY ("calendar_id") REFERENCES "public"."calendars"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
+CREATE INDEX "idx_sessions_user_id" ON "sessions" USING btree ("user_id");--> statement-breakpoint
+CREATE INDEX "idx_sessions_expires_at" ON "sessions" USING btree ("expires_at");--> statement-breakpoint
 CREATE UNIQUE INDEX "idx_calendar_members_unique" ON "calendar_members" USING btree ("calendar_id","user_id");--> statement-breakpoint
 CREATE INDEX "idx_calendar_members_user_id" ON "calendar_members" USING btree ("user_id");--> statement-breakpoint
 CREATE UNIQUE INDEX "idx_calendars_user_name" ON "calendars" USING btree ("user_id","name");--> statement-breakpoint
@@ -83,4 +85,5 @@ CREATE INDEX "idx_calendars_user_id" ON "calendars" USING btree ("user_id");--> 
 CREATE UNIQUE INDEX "idx_event_exceptions_unique" ON "event_exceptions" USING btree ("event_id","exception_date");--> statement-breakpoint
 CREATE INDEX "idx_events_calendar_id" ON "events" USING btree ("calendar_id");--> statement-breakpoint
 CREATE INDEX "idx_events_start_time" ON "events" USING btree ("start_time");--> statement-breakpoint
+CREATE INDEX "idx_events_calendar_start" ON "events" USING btree ("calendar_id","start_time");--> statement-breakpoint
 CREATE INDEX "idx_events_search" ON "events" USING gin ("search_vector");

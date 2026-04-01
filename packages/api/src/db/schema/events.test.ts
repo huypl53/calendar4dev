@@ -70,6 +70,11 @@ describe('events table schema', () => {
     expect(idx).toBeDefined()
   })
 
+  it('has composite index on calendarId + startTime', () => {
+    const idx = config.indexes.find(i => i.config.name === 'idx_events_calendar_start')
+    expect(idx).toBeDefined()
+  })
+
   it('has foreign key to calendars', () => {
     expect(config.foreignKeys.length).toBeGreaterThanOrEqual(1)
   })
