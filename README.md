@@ -44,6 +44,10 @@ dev-calendar/
 | `pnpm test` | Run tests across all packages |
 | `pnpm typecheck` | TypeScript strict mode check |
 | `pnpm lint` | Lint all packages |
+| `pnpm db:generate` | Generate Drizzle migration from schema changes |
+| `pnpm db:migrate` | Apply pending database migrations |
+| `pnpm db:push` | Push schema directly to DB (dev only) |
+| `pnpm db:studio` | Open Drizzle Studio DB browser |
 
 ## Docker
 
