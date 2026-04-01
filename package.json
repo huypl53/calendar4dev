@@ -1,0 +1,18 @@
+{
+  "name": "dev-calendar",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@9.15.9",
+  "scripts": {
+    "dev": "pnpm -r --parallel --filter @dev-calendar/api --filter @dev-calendar/web dev",
+    "build": "pnpm --filter @dev-calendar/shared build && pnpm --filter @dev-calendar/web build && pnpm --filter @dev-calendar/api build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "test:e2e": "npx playwright test",
+    "test:burn-in": "bash scripts/burn-in-changed.sh",
+    "typecheck": "pnpm -r typecheck"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
