@@ -1,6 +1,7 @@
 import { Link } from '@tanstack/react-router'
 import { useUIStore } from '../stores/ui-store.js'
 import { getTodayDate } from '../lib/date-utils.js'
+import { IconButton } from '../components/ui/index.js'
 
 export function Header() {
   const today = getTodayDate()
@@ -12,14 +13,9 @@ export function Header() {
       className="col-span-full flex items-center gap-4 border-b border-[var(--color-border)] bg-[var(--color-bg-secondary)] px-4"
       style={{ height: 'var(--density-header-height)' }}
     >
-      <button
-        type="button"
-        aria-label="Toggle sidebar"
-        onClick={toggleSidebar}
-        className="flex h-8 w-8 items-center justify-center rounded hover:bg-[var(--color-bg-tertiary)]"
-      >
+      <IconButton aria-label="Toggle sidebar" onClick={toggleSidebar}>
         <span className="text-[var(--color-text-primary)]">&#9776;</span>
-      </button>
+      </IconButton>
 
       <span className="font-sans text-sm font-semibold text-[var(--color-text-primary)]">
         Dev Calendar

@@ -61,7 +61,7 @@ development_status:
   epic-2: in-progress
   2-1-design-token-system-typography-foundation: done
   2-2-theme-density-accent-color-controls: done
-  2-3-core-ui-primitives: backlog
+  2-3-core-ui-primitives: review
   2-4-application-shell-polish-responsive-layout: backlog
   2-5-overlay-feedback-components: backlog
   epic-2-retrospective: optional

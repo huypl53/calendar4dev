@@ -92,7 +92,17 @@ Drizzle ORM with PostgreSQL (postgres.js driver). Uses `casing: 'snake_case'` in
 - **Zustand persist**: `useUIStore` uses `zustand/middleware` `persist` with localStorage key `'dev-calendar-ui'`. Only `theme`, `density`, and `accentColor` are persisted (not `sidebarOpen`). Preferences survive page reloads.
 - **Accent color runtime**: `accentColor` state in `useUIStore`, applied to `<html>` via `style.setProperty('--color-accent', accentColor)` in the `AppShell` `useEffect`. Supports ~24 presets from `ACCENT_COLOR_PRESETS` and custom hex input.
 - **Appearance settings**: `packages/web/src/features/settings/components/appearance-settings.tsx` — theme toggle (Dark/Light buttons), density toggle (Compact/Comfortable buttons), accent color grid (24 preset dots + custom hex input). Mounted inline in the sidebar via a collapsible "Settings" button.
-- **Store actions**: `setTheme`, `toggleTheme`, `toggleDensity`, `setAccentColor` — all fire synchronous Zustand updates that trigger the `AppShell` `useEffect` to apply changes to `<html>`.
+- **Store actions**: `setTheme`, `toggleTheme`, `setDensity`, `toggleDensity`, `setAccentColor` — all fire synchronous Zustand updates that trigger the `AppShell` `useEffect` to apply changes to `<html>`.
+
+## Core UI Primitives (Story 2-3)
+
+- **Component location**: `packages/web/src/components/ui/` — barrel export from `index.ts`
+- **Button**: Variants (primary, secondary, ghost, danger), sizes (sm, md). All colors from CSS custom properties. Disabled state with reduced opacity.
+- **IconButton**: Icon-only button with required `aria-label`, sizes (sm, md), hover state using `--color-bg-tertiary`.
+- **Badge**: Default variant (rounded label) and dot variant (small colored circle for calendar indicators). Custom color via props.
+- **Tooltip**: Shows on hover/focus with 300ms delay. Positioned above trigger. Uses `--color-bg-tertiary` background.
+- **Token usage pattern**: All primitives use `var(--color-*)`, `var(--font-size-*)`, `var(--font-weight-*)` tokens via Tailwind arbitrary value syntax (e.g., `bg-[var(--color-accent)]`). No hardcoded colors.
+- **Refactored components**: Header hamburger uses `IconButton`, appearance settings uses `Button`.
 
 ## Key Decisions
 

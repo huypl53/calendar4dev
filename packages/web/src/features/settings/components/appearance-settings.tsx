@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useUIStore } from '../../../stores/ui-store.js'
 import { ACCENT_COLOR_PRESETS } from '@dev-calendar/shared'
+import { Button } from '../../../components/ui/index.js'
 
 const HEX_RE = /^#[0-9a-fA-F]{6}$/
 
@@ -31,73 +32,57 @@ export function AppearanceSettings() {
     <div data-testid="appearance-settings" className="space-y-4">
       {/* Theme */}
       <fieldset>
-        <legend className="mb-1 text-[var(--font-size-small)] font-[var(--font-weight-medium)] text-[var(--color-text-secondary)]">
+        <legend className="mb-1 text-[length:var(--font-size-small)] font-[number:var(--font-weight-medium)] text-[var(--color-text-secondary)]">
           Theme
         </legend>
         <div className="flex gap-1">
-          <button
-            type="button"
+          <Button
+            size="sm"
+            variant={theme === 'dark' ? 'primary' : 'secondary'}
             data-testid="theme-dark"
             onClick={() => setTheme('dark')}
-            className={`rounded px-3 py-1 text-[var(--font-size-small)] ${
-              theme === 'dark'
-                ? 'bg-[var(--color-accent)] text-white'
-                : 'bg-[var(--color-bg-tertiary)] text-[var(--color-text-secondary)]'
-            }`}
           >
             Dark
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            size="sm"
+            variant={theme === 'light' ? 'primary' : 'secondary'}
             data-testid="theme-light"
             onClick={() => setTheme('light')}
-            className={`rounded px-3 py-1 text-[var(--font-size-small)] ${
-              theme === 'light'
-                ? 'bg-[var(--color-accent)] text-white'
-                : 'bg-[var(--color-bg-tertiary)] text-[var(--color-text-secondary)]'
-            }`}
           >
             Light
-          </button>
+          </Button>
         </div>
       </fieldset>
 
       {/* Density */}
       <fieldset>
-        <legend className="mb-1 text-[var(--font-size-small)] font-[var(--font-weight-medium)] text-[var(--color-text-secondary)]">
+        <legend className="mb-1 text-[length:var(--font-size-small)] font-[number:var(--font-weight-medium)] text-[var(--color-text-secondary)]">
           Density
         </legend>
         <div className="flex gap-1">
-          <button
-            type="button"
+          <Button
+            size="sm"
+            variant={density === 'compact' ? 'primary' : 'secondary'}
             data-testid="density-compact"
             onClick={() => setDensity('compact')}
-            className={`rounded px-3 py-1 text-[var(--font-size-small)] ${
-              density === 'compact'
-                ? 'bg-[var(--color-accent)] text-white'
-                : 'bg-[var(--color-bg-tertiary)] text-[var(--color-text-secondary)]'
-            }`}
           >
             Compact
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            size="sm"
+            variant={density === 'comfortable' ? 'primary' : 'secondary'}
             data-testid="density-comfortable"
             onClick={() => setDensity('comfortable')}
-            className={`rounded px-3 py-1 text-[var(--font-size-small)] ${
-              density === 'comfortable'
-                ? 'bg-[var(--color-accent)] text-white'
-                : 'bg-[var(--color-bg-tertiary)] text-[var(--color-text-secondary)]'
-            }`}
           >
             Comfortable
-          </button>
+          </Button>
         </div>
       </fieldset>
 
       {/* Accent Color */}
       <fieldset>
-        <legend className="mb-1 text-[var(--font-size-small)] font-[var(--font-weight-medium)] text-[var(--color-text-secondary)]">
+        <legend className="mb-1 text-[length:var(--font-size-small)] font-[number:var(--font-weight-medium)] text-[var(--color-text-secondary)]">
           Accent Color
         </legend>
         <div className="flex flex-wrap gap-1">
@@ -127,18 +112,18 @@ export function AppearanceSettings() {
             onChange={(e) => { setCustomHex(e.target.value); setHexError(false) }}
             onKeyDown={(e) => { if (e.key === 'Enter') handleCustomHex() }}
             data-testid="custom-hex-input"
-            className={`w-24 rounded border px-2 py-1 text-[var(--font-size-small)] bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)] ${
+            className={`w-24 rounded border px-2 py-1 text-[length:var(--font-size-small)] bg-[var(--color-bg-tertiary)] text-[var(--color-text-primary)] ${
               hexError ? 'border-[var(--color-danger)]' : 'border-[var(--color-border)]'
             }`}
           />
-          <button
-            type="button"
+          <Button
+            size="sm"
+            variant="secondary"
             data-testid="apply-custom-hex"
             onClick={handleCustomHex}
-            className="rounded bg-[var(--color-bg-tertiary)] px-2 py-1 text-[var(--font-size-small)] text-[var(--color-text-secondary)] hover:text-[var(--color-text-primary)]"
           >
             Apply
-          </button>
+          </Button>
         </div>
       </fieldset>
     </div>
