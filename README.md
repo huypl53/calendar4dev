@@ -99,8 +99,12 @@ The web application uses a CSS Grid-based app shell with:
 
 All layout dimensions (header height, sidebar width, status bar height) are driven by CSS custom property density tokens — see Design System below.
 
+**Responsive layout:**
+- Desktop: sidebar occupies its own grid column with smooth CSS transition
+- Mobile (< 768px): sidebar renders as a fixed overlay with backdrop
+
 **State management:**
-- **Zustand** for UI state (sidebar, theme, density)
+- **Zustand** for UI state (sidebar, theme, density, accent color) — persisted to localStorage
 - **TanStack Query** for server state (events, calendars)
 
 ## Design System
@@ -116,6 +120,15 @@ The app uses a CSS custom property-based design token system. All tokens are def
 **Density:** Compact (default) and comfortable modes via `data-density` attribute. Controls row heights, padding, sidebar width, header/status-bar heights, and font sizes.
 
 **Accent colors:** 24 preset accent colors available. Default: Cobalt blue (`#2f81f7`). Accent stays the same in both dark and light themes.
+
+**UI Primitives** (`packages/web/src/components/ui/`):
+- `Button` — variants: primary, secondary, ghost, danger; sizes: sm, md
+- `IconButton` — icon-only with required aria-label
+- `Badge` — default (label) and dot (color circle) variants
+- `Tooltip` — shows on hover/focus with 300ms delay
+- `Dialog` — native `<dialog>` with focus trap and backdrop
+- `DropdownMenu` — positioned menu with keyboard nav (arrow keys)
+- `ToastContainer` + `useToast` — transient notifications with auto-dismiss
 
 **Routes** (all require authentication):
 - `/week/:date` — Week view (default)
