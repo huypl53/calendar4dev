@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, cleanup } from '@testing-library/react'
+import { createElement } from 'react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import {
   createRootRoute,
   createRoute,
@@ -9,12 +11,18 @@ import {
 } from '@tanstack/react-router'
 import { WeekView } from './week-view.js'
 
+vi.mock('../../../lib/api-client.js', () => ({
+  eventsApi: { list: vi.fn().mockResolvedValue([]) },
+  calendarsApi: { list: vi.fn().mockResolvedValue([]) },
+}))
+
 afterEach(() => {
   cleanup()
   vi.restoreAllMocks()
 })
 
 function renderWithRouter(date: string) {
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   const rootRoute = createRootRoute()
   const weekRoute = createRoute({
     getParentRoute: () => rootRoute,
@@ -28,7 +36,10 @@ function renderWithRouter(date: string) {
     history: createMemoryHistory({ initialEntries: [`/week/${date}`] }),
   })
 
-  return render(<RouterProvider router={router} />)
+  return render(
+    createElement(QueryClientProvider, { client: queryClient },
+      createElement(RouterProvider, { router })),
+  )
 }
 
 describe('WeekView', () => {
@@ -58,7 +69,6 @@ describe('WeekView', () => {
   })
 
   it('auto-scrolls to 8 AM on mount', async () => {
-    // Mock getComputedStyle to return a row height
     const original = window.getComputedStyle
     vi.spyOn(window, 'getComputedStyle').mockImplementation((el) => {
       const style = original(el)
