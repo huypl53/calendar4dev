@@ -13,11 +13,13 @@ export const calendars = pgTable('calendars', {
   color: varchar({ length: 7 }).notNull().default('#1f2937'),
   timezone: varchar({ length: 64 }).notNull().default('UTC'),
   isPrimary: boolean().notNull().default(false),
+  shareToken: varchar({ length: 64 }),
   createdAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp({ withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 }, (t) => [
   uniqueIndex('idx_calendars_user_name').on(t.userId, t.name),
   index('idx_calendars_user_id').on(t.userId),
+  uniqueIndex('idx_calendars_share_token').on(t.shareToken),
 ])
 
 export const calendarMembers = pgTable('calendar_members', {

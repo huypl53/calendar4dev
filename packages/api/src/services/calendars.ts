@@ -1,7 +1,20 @@
 import { eq } from 'drizzle-orm'
+import { randomBytes } from 'node:crypto'
 import { db } from '../db/client.js'
 import { calendars } from '../db/schema/calendars.js'
 import { NotFoundError, ForbiddenError } from '../lib/errors.js'
+
+export async function getOrCreateShareToken(calendarId: string, userId: string): Promise<string> {
+  const calendar = await getCalendarForOwner(calendarId, userId)
+  if (calendar.shareToken) return calendar.shareToken
+  const token = randomBytes(32).toString('hex')
+  await db.update(calendars).set({ shareToken: token }).where(eq(calendars.id, calendarId))
+  return token
+}
+
+export async function getCalendarByShareToken(token: string) {
+  return db.query.calendars.findFirst({ where: eq(calendars.shareToken, token) })
+}
 
 export async function getCalendarForOwner(calendarId: string, userId: string) {
   const calendar = await db.query.calendars.findFirst({ where: eq(calendars.id, calendarId) })
