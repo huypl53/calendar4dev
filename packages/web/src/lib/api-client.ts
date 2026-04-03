@@ -60,6 +60,7 @@ export interface CalendarEvent {
   visibility: string
   eventType: string
   recurrenceRule: string | null
+  reminderMinutes: number | null
   createdAt: string
   updatedAt: string
 }
@@ -176,6 +177,7 @@ export const eventsApi = {
     location?: string | null
     color?: string | null
     recurrenceRule?: string | null
+    reminderMinutes?: number | null
   }) =>
     request<{ data: CalendarEvent }>('/api/events', {
       method: 'POST',
