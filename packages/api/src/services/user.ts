@@ -1,7 +1,7 @@
 import { eq, and } from 'drizzle-orm'
 import { hashPassword, verifyPassword } from 'better-auth/crypto'
 import { db } from '../db/client.js'
-import { users, accounts } from '../db/schema/index.js'
+import { users, accounts, sessions } from '../db/schema/index.js'
 import { NotFoundError, ValidationError } from '../lib/errors.js'
 
 export async function getProfile(userId: string) {
@@ -59,4 +59,8 @@ export async function changePassword(userId: string, data: { currentPassword: st
     .update(accounts)
     .set({ password: newHash })
     .where(and(eq(accounts.userId, userId), eq(accounts.providerId, 'credential')))
+
+  // Invalidate all existing sessions so that any previously compromised session
+  // tokens can no longer be used after a password change.
+  await db.delete(sessions).where(eq(sessions.userId, userId))
 }

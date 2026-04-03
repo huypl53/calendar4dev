@@ -37,6 +37,14 @@ export function DayView() {
   for (const cal of sharedCalendars ?? []) {
     sharedPermissions[cal.id] = cal.permissionLevel
   }
+  const readOnlyEventIds = new Set(
+    (events ?? [])
+      .filter((e) => {
+        const perm = sharedPermissions[e.calendarId]
+        return perm === 'details' || (sharedCalendars === undefined && !calendars?.some((c) => c.id === e.calendarId))
+      })
+      .map((e) => e.id),
+  )
 
   const [createDialog, setCreateDialog] = useState<{ open: boolean; start: string; end: string }>({
     open: false,
@@ -118,6 +126,7 @@ export function DayView() {
               days={[date]}
               events={timedEvents}
               calendarColorMap={calendarColorMap}
+              readOnlyEventIds={readOnlyEventIds}
               onCellClick={handleCellClick}
               onEventClick={handleEventClick}
               onEventDrop={handleEventDrop}
@@ -137,7 +146,7 @@ export function DayView() {
         open={!!editEvent}
         onClose={() => setEditEvent(undefined)}
         event={editEvent}
-        isReadOnly={!!editEvent && sharedPermissions[editEvent.calendarId] === 'details'}
+        isReadOnly={!!editEvent && (sharedPermissions[editEvent.calendarId] === 'details' || (sharedCalendars === undefined && !calendars?.some((c) => c.id === editEvent.calendarId)))}
       />
     </div>
   )

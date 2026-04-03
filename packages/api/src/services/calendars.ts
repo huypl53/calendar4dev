@@ -1,4 +1,4 @@
-import { eq } from 'drizzle-orm'
+import { eq, and, isNull } from 'drizzle-orm'
 import { randomBytes } from 'node:crypto'
 import { db } from '../db/client.js'
 import { calendars } from '../db/schema/calendars.js'
@@ -8,8 +8,13 @@ export async function getOrCreateShareToken(calendarId: string, userId: string):
   const calendar = await getCalendarForOwner(calendarId, userId)
   if (calendar.shareToken) return calendar.shareToken
   const token = randomBytes(32).toString('hex')
-  await db.update(calendars).set({ shareToken: token }).where(eq(calendars.id, calendarId))
-  return token
+  // Conditional UPDATE: only write if still NULL, handling concurrent requests gracefully.
+  await db.update(calendars)
+    .set({ shareToken: token })
+    .where(and(eq(calendars.id, calendarId), isNull(calendars.shareToken)))
+  // Re-read to get whichever token won (ours or a concurrent request's).
+  const updated = await db.query.calendars.findFirst({ where: eq(calendars.id, calendarId) })
+  return updated!.shareToken!
 }
 
 export async function getCalendarByShareToken(token: string) {

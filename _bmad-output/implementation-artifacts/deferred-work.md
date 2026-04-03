@@ -63,3 +63,24 @@
 - DayHeader date parsing uses manual split-and-construct pattern — extract shared date-formatting helper if more views need similar display
 - NowLine does not account for container scroll position in week/day view — visually fine since percentage-based, but verify in integration
 - h-7 w-7 badge sizes and min-h-[28px] all-day row height not tokenized — extract to density tokens for consistency
+
+## Deferred from: code review of Epics 11-18 (2026-04-03)
+
+- `listMembers` gated to owner/admin — members with edit/details cannot list who else has access; desired behavior unclear, leave restricted for now
+- `removeMember` TOCTOU: read-then-delete in separate statements — low exploitability, no transaction refactor warranted now
+- `listEventsForCalendar` has no auth check in the service itself — intentional; authorization is at the route layer (share token validated before calling)
+- `/api/ical/` globally public prefix — any future route accidentally placed here would skip auth; add per-route auth annotation when adding routes under this prefix
+- ICS `parseDt` floating/TZID times treated as UTC — correct fix requires VTIMEZONE parsing and a timezone database; document as known limitation
+- ICS `parseDt` regex: abnormal datetime input produces Invalid Date (silently dropped) — tolerable; invalid events are excluded from import results
+- ICS import not wrapped in a transaction — partial imports possible on crash mid-loop; fix requires batching inserts
+- ICS import size limit checked on event count not raw bytes — 500-event cap is sufficient guard for now
+- iCal feed `/api/ical/:token` has no rate limiting — infrastructure-level (reverse proxy / API gateway) concern; 256-bit token space makes brute force impractical
+- Drag cross-day: horizontal cursor movement during drag is silently no-op — feature gap, not a bug
+- Multi-day timed events render as single same-height block on each day (no visual spanning) — UX enhancement, not a bug
+- `computeNewStartMinute` can produce negative maxStart for duration > 1440 min — only possible for corrupted data; all-day events don't reach TimeGrid
+- Search `placeholderData: []` causes brief "no results" flash between queries — cosmetic; acceptable for now
+- `to_tsquery` single-character token may produce PostgreSQL error — partially guarded by the ≥2-char check; edge case
+- `navigator.onLine` reports true for captive portals — platform limitation
+- `gcTime: 300s` may be too short for meaningful offline use — tradeoff between staleness and memory; current value is deliberate
+- Notification polling fires in backgrounded tabs — browsers throttle intervals anyway; acceptable
+- Offline mutation queue — `networkMode: 'offlineFirst'` does not persist mutations; full background sync requires a Service Worker or IndexedDB queue

@@ -27,7 +27,9 @@ app.get('/api/ical/:token', async (c) => {
     String(calendar.name),
   )
   c.header('Content-Type', 'text/calendar; charset=utf-8')
-  c.header('Cache-Control', 'public, max-age=300')
+  // private: proxies/CDNs must not cache — a revoked token would otherwise still serve data
+  c.header('Cache-Control', 'private, max-age=300')
+  c.header('Content-Disposition', 'attachment; filename="calendar.ics"')
   return c.text(icsContent)
 })
 

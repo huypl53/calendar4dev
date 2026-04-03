@@ -59,9 +59,13 @@ export function AppShell({ children }: AppShellProps) {
 
   const { toast } = useToast()
 
-  // Fetch upcoming events for reminder polling (next 2 hours)
+  // Fetch today + tomorrow so reminders near midnight (e.g. 23:50 for a 00:05 event) are caught.
   const notifStart = today
-  const notifEnd = today
+  const notifEnd = (() => {
+    const d = new Date(today)
+    d.setDate(d.getDate() + 1)
+    return d.toISOString().slice(0, 10)
+  })()
   const { data: upcomingEvents } = useEventsQuery({ startDate: notifStart, endDate: notifEnd })
   const upcomingEventsRef = useRef(upcomingEvents)
   upcomingEventsRef.current = upcomingEvents

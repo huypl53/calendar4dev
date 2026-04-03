@@ -12,16 +12,30 @@ export interface IcsEvent {
   recurrenceRule: string | null
 }
 
-/** Fold a long iCal line at 75 octets per RFC 5545 §3.1 */
+const _encoder = new TextEncoder()
+function utf8Len(s: string): number { return _encoder.encode(s).length }
+
+/** Fold a long iCal line at 75 octets per RFC 5545 §3.1 (counts UTF-8 bytes, not JS code units) */
 function foldLine(line: string): string {
-  if (line.length <= 75) return line
+  if (utf8Len(line) <= 75) return line
   const chunks: string[] = []
-  chunks.push(line.slice(0, 75))
-  let i = 75
-  while (i < line.length) {
-    chunks.push(' ' + line.slice(i, i + 74))
-    i += 74
+  let current = ''
+  let byteLen = 0
+  // First chunk: 75 bytes; continuation chunks: content ≤ 74 bytes (leading space occupies 1 byte)
+  let limit = 75
+  for (const ch of line) {
+    const chLen = utf8Len(ch)
+    if (byteLen + chLen > limit) {
+      chunks.push(current)
+      current = ' ' + ch
+      byteLen = 1 + chLen
+      limit = 75  // total line ≤ 75 octets incl. leading space
+    } else {
+      current += ch
+      byteLen += chLen
+    }
   }
+  if (current) chunks.push(current)
   return chunks.join('\r\n')
 }
 
@@ -94,9 +108,10 @@ function unfold(raw: string): string[] {
 }
 
 function getPropertyValue(line: string): string {
-  // Strip property name and any parameters (up to first ':')
+  // Strip property name and any parameters (up to first ':').
+  // Do not trim — RFC 5545 property values may have significant trailing whitespace.
   const colonIdx = line.indexOf(':')
-  return colonIdx >= 0 ? line.slice(colonIdx + 1).trim() : ''
+  return colonIdx >= 0 ? line.slice(colonIdx + 1) : ''
 }
 
 function parseDt(value: string): Date {

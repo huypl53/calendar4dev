@@ -31,6 +31,8 @@ interface TimeGridProps {
   events?: CalendarEvent[]
   /** calendarId → color for event coloring */
   calendarColorMap?: Record<string, string>
+  /** Set of event IDs that must not be draggable (e.g. shared calendars with details-only permission) */
+  readOnlyEventIds?: Set<string>
   /** Called when a grid cell is clicked with the date and hour */
   onCellClick?: (date: string, hour: number) => void
   /** Called when an event block is clicked */
@@ -39,7 +41,7 @@ interface TimeGridProps {
   onEventDrop?: (event: CalendarEvent, newStartTime: string, newEndTime: string) => void
 }
 
-export function TimeGrid({ dayCount, todayIndex, days, events, calendarColorMap, onCellClick, onEventClick, onEventDrop }: TimeGridProps) {
+export function TimeGrid({ dayCount, todayIndex, days, events, calendarColorMap, readOnlyEventIds, onCellClick, onEventClick, onEventDrop }: TimeGridProps) {
   const hours = Array.from({ length: 24 }, (_, i) => i)
   const eventsByColumn = groupEventsByDay(events ?? [], days ?? [])
 
@@ -173,7 +175,7 @@ export function TimeGrid({ dayCount, todayIndex, days, events, calendarColorMap,
                   event={event}
                   // Suppress click while dragging this event (handled in mouseup)
                   onClick={dragVisual?.eventId === event.id ? undefined : onEventClick}
-                  onMouseDown={onEventDrop ? (e, ev) => handleEventMouseDown(e, ev, colIdx) : undefined}
+                  onMouseDown={onEventDrop && !readOnlyEventIds?.has(event.id) ? (e, ev) => handleEventMouseDown(e, ev, colIdx) : undefined}
                   color={calendarColorMap?.[event.calendarId]}
                   isDragging={dragVisual?.eventId === event.id}
                 />
