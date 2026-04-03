@@ -21,3 +21,16 @@ export const updateCalendarSchema = z.object({
 })
 
 export type UpdateCalendar = z.infer<typeof updateCalendarSchema>
+
+export const addCalendarMemberSchema = z.object({
+  email: z.string().email(),
+  permissionLevel: z.enum(['details', 'edit', 'admin']),
+})
+
+export type AddCalendarMember = z.infer<typeof addCalendarMemberSchema>
+
+export const updateCalendarMemberSchema = z.object({
+  permissionLevel: z.enum(['details', 'edit', 'admin']),
+})
+
+export type UpdateCalendarMember = z.infer<typeof updateCalendarMemberSchema>
