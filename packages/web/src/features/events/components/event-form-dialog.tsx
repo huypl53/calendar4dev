@@ -16,6 +16,8 @@ export interface EventFormDialogProps {
   defaultEnd?: string
   /** When set, the dialog is in edit mode */
   event?: CalendarEvent
+  /** When true (shared calendar with details-only permission), renders read-only view */
+  isReadOnly?: boolean
 }
 
 export function EventFormDialog({
@@ -24,6 +26,7 @@ export function EventFormDialog({
   defaultStart,
   defaultEnd,
   event,
+  isReadOnly = false,
 }: EventFormDialogProps) {
   const { data: calendars } = useCalendarsQuery()
   const createMutation = useCreateEventMutation()
@@ -136,6 +139,43 @@ export function EventFormDialog({
   }
 
   const isPending = createMutation.isPending || updateMutation.isPending || deleteMutation.isPending
+
+  // Read-only view for shared calendars with details-only permission
+  if (isReadOnly && event) {
+    return (
+      <Dialog open={open} onClose={onClose} title="Event Details">
+        <div data-testid="event-readonly" className="flex flex-col gap-[var(--space-3)]">
+          <div>
+            <div className="text-[length:var(--font-size-small)] text-[var(--color-text-secondary)]">Title</div>
+            <div className="text-[length:var(--font-size-body)] text-[var(--color-text-primary)]">{event.title}</div>
+          </div>
+          <div className="grid grid-cols-2 gap-[var(--space-2)]">
+            <div>
+              <div className="text-[length:var(--font-size-small)] text-[var(--color-text-secondary)]">Start</div>
+              <div className="text-[length:var(--font-size-body)] text-[var(--color-text-primary)]">
+                {new Date(event.startTime).toLocaleString()}
+              </div>
+            </div>
+            <div>
+              <div className="text-[length:var(--font-size-small)] text-[var(--color-text-secondary)]">End</div>
+              <div className="text-[length:var(--font-size-body)] text-[var(--color-text-primary)]">
+                {new Date(event.endTime).toLocaleString()}
+              </div>
+            </div>
+          </div>
+          {event.description && (
+            <div>
+              <div className="text-[length:var(--font-size-small)] text-[var(--color-text-secondary)]">Description</div>
+              <div className="text-[length:var(--font-size-body)] text-[var(--color-text-primary)]">{event.description}</div>
+            </div>
+          )}
+          <div className="flex justify-end pt-[var(--space-1)]">
+            <Button type="button" variant="ghost" size="sm" onClick={onClose}>Close</Button>
+          </div>
+        </div>
+      </Dialog>
+    )
+  }
 
   return (
     <Dialog open={open} onClose={onClose} title={isEdit ? 'Edit Event' : 'New Event'}>

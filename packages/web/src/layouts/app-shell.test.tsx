@@ -19,6 +19,7 @@ vi.mock('../hooks/use-media-query.js', () => ({
 vi.mock('../lib/api-client.js', () => ({
   eventsApi: { list: vi.fn().mockResolvedValue([]) },
   calendarsApi: { list: vi.fn().mockResolvedValue([]) },
+  sharedCalendarsApi: { list: vi.fn().mockResolvedValue([]) },
 }))
 
 // jsdom doesn't implement HTMLDialogElement methods

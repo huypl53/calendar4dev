@@ -64,6 +64,32 @@ export interface CalendarEvent {
   updatedAt: string
 }
 
+// Calendar member types
+export interface CalendarMember {
+  id: string
+  calendarId: string
+  userId: string
+  userEmail: string
+  userName: string | null
+  permissionLevel: 'details' | 'edit' | 'admin'
+  createdAt: string
+}
+
+// Shared calendar type
+export interface SharedCalendar {
+  id: string
+  name: string
+  description: string | null
+  color: string
+  timezone: string
+  isPrimary: boolean
+  permissionLevel: 'details' | 'edit' | 'admin'
+  ownerEmail: string
+  ownerName: string | null
+  createdAt: string
+  updatedAt: string
+}
+
 // Calendar API
 export const calendarsApi = {
   list: () =>
@@ -71,6 +97,33 @@ export const calendarsApi = {
 
   bootstrap: () =>
     request<{ data: Calendar }>('/api/calendars/bootstrap', { method: 'POST' }).then((r) => r.data),
+}
+
+// Calendar members API
+export const calendarMembersApi = {
+  list: (calendarId: string) =>
+    request<{ data: CalendarMember[] }>(`/api/calendars/${calendarId}/members`).then((r) => r.data),
+
+  add: (calendarId: string, data: { email: string; permissionLevel: 'details' | 'edit' | 'admin' }) =>
+    request<{ data: CalendarMember }>(`/api/calendars/${calendarId}/members`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }).then((r) => r.data),
+
+  update: (calendarId: string, memberId: string, data: { permissionLevel: 'details' | 'edit' | 'admin' }) =>
+    request<{ data: CalendarMember }>(`/api/calendars/${calendarId}/members/${memberId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }).then((r) => r.data),
+
+  remove: (calendarId: string, memberId: string) =>
+    request<void>(`/api/calendars/${calendarId}/members/${memberId}`, { method: 'DELETE' }),
+}
+
+// Shared calendars API
+export const sharedCalendarsApi = {
+  list: () =>
+    request<{ data: SharedCalendar[] }>('/api/calendars/shared').then((r) => r.data),
 }
 
 // Events API

@@ -118,4 +118,37 @@ describe('EventFormDialog', () => {
     // Dialog exists in DOM but is not shown (native dialog behavior)
     expect(screen.getByTestId('dialog')).toBeInTheDocument()
   })
+
+  it('renders read-only view when isReadOnly=true with event', () => {
+    renderDialog({
+      isReadOnly: true,
+      event: {
+        id: 'evt-ro',
+        calendarId: 'cal-1',
+        title: 'Read Only Event',
+        description: 'Some desc',
+        startTime: '2026-04-03T09:00:00.000Z',
+        endTime: '2026-04-03T10:00:00.000Z',
+        allDay: false,
+        location: null,
+        color: null,
+        status: 'confirmed',
+        visibility: 'default',
+        eventType: 'default',
+        recurrenceRule: null,
+        createdAt: '2026-04-01T00:00:00.000Z',
+        updatedAt: '2026-04-01T00:00:00.000Z',
+      },
+    })
+    expect(screen.getByTestId('event-readonly')).toBeInTheDocument()
+    expect(screen.queryByTestId('event-form')).not.toBeInTheDocument()
+    expect(screen.getByText('Read Only Event')).toBeInTheDocument()
+    expect(screen.getByText('Some desc')).toBeInTheDocument()
+  })
+
+  it('does not render read-only view when isReadOnly=true but no event', () => {
+    renderDialog({ isReadOnly: true })
+    expect(screen.queryByTestId('event-readonly')).not.toBeInTheDocument()
+    expect(screen.getByTestId('event-form')).toBeInTheDocument()
+  })
 })
