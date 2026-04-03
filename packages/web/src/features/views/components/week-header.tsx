@@ -10,7 +10,7 @@ export function WeekHeader({ days }: WeekHeaderProps) {
       {/* Day column headers */}
       <div
         className="grid border-b border-[var(--color-border)]"
-        style={{ gridTemplateColumns: '60px repeat(7, 1fr)' }}
+        style={{ gridTemplateColumns: 'var(--density-gutter-width) repeat(7, 1fr)' }}
       >
         {/* Gutter spacer */}
         <div />
@@ -44,7 +44,7 @@ export function WeekHeader({ days }: WeekHeaderProps) {
       <div
         data-testid="all-day-section"
         className="grid min-h-[28px] border-b border-[var(--color-border)]"
-        style={{ gridTemplateColumns: '60px repeat(7, 1fr)' }}
+        style={{ gridTemplateColumns: 'var(--density-gutter-width) repeat(7, 1fr)' }}
       >
         <div className="flex items-center justify-end pr-2 font-mono text-[length:var(--font-size-tiny)] text-[var(--color-text-tertiary)]">
           all-day

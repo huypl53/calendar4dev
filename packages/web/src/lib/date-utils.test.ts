@@ -9,6 +9,8 @@ import {
   isSameMonth,
   addDays,
   addMonths,
+  getDateLabel,
+  navigateDate,
 } from './date-utils.js'
 
 describe('getWeekDays', () => {
@@ -124,5 +126,55 @@ describe('addMonths', () => {
 
   it('subtracts months', () => {
     expect(addMonths('2026-04-01', -1)).toBe('2026-03-01')
+  })
+
+  it('clamps day to last day of target month (Jan 31 + 1mo = Feb 28)', () => {
+    expect(addMonths('2026-01-31', 1)).toBe('2026-02-28')
+  })
+
+  it('handles leap year (Jan 31 + 1mo in leap year = Feb 29)', () => {
+    expect(addMonths('2024-01-31', 1)).toBe('2024-02-29')
+  })
+})
+
+describe('getDateLabel', () => {
+  it('returns full date for day view', () => {
+    expect(getDateLabel('day', '2026-04-03')).toBe('April 3, 2026')
+  })
+
+  it('returns month and year for month view', () => {
+    expect(getDateLabel('month', '2026-04-03')).toBe('April 2026')
+  })
+
+  it('returns date range for week view', () => {
+    const label = getDateLabel('week', '2026-04-01')
+    // Week of Apr 1 = Mar 30 – Apr 5
+    expect(label).toContain('Mar')
+    expect(label).toContain('Apr')
+  })
+
+  it('returns "Schedule" for schedule view', () => {
+    expect(getDateLabel('schedule', '2026-04-03')).toBe('Schedule')
+  })
+})
+
+describe('navigateDate', () => {
+  it('navigates day view by ±1 day', () => {
+    expect(navigateDate('day', '2026-04-03', 1)).toBe('2026-04-04')
+    expect(navigateDate('day', '2026-04-03', -1)).toBe('2026-04-02')
+  })
+
+  it('navigates week view by ±7 days', () => {
+    expect(navigateDate('week', '2026-04-03', 1)).toBe('2026-04-10')
+    expect(navigateDate('week', '2026-04-03', -1)).toBe('2026-03-27')
+  })
+
+  it('navigates month view by ±1 month', () => {
+    expect(navigateDate('month', '2026-04-03', 1)).toBe('2026-05-03')
+    expect(navigateDate('month', '2026-04-03', -1)).toBe('2026-03-03')
+  })
+
+  it('returns same date for schedule view', () => {
+    expect(navigateDate('schedule', '2026-04-03', 1)).toBe('2026-04-03')
   })
 })

@@ -92,10 +92,15 @@ export function addDays(date: string, days: number): string {
   return formatDate(d)
 }
 
-/** Adds months to a YYYY-MM-DD date. */
+/** Adds months to a YYYY-MM-DD date. Clamps day to last day of target month. */
 export function addMonths(date: string, months: number): string {
   const d = toDate(date)
-  d.setMonth(d.getMonth() + months)
+  const targetMonth = d.getMonth() + months
+  d.setMonth(targetMonth)
+  // Clamp: if day overflowed into next month (e.g. Jan 31 + 1mo → Mar 3), set to last day of target month
+  if (d.getMonth() !== ((targetMonth % 12) + 12) % 12) {
+    d.setDate(0)
+  }
   return formatDate(d)
 }
 
@@ -105,4 +110,34 @@ export function formatHour(hour: number): string {
   if (hour < 12) return `${hour} AM`
   if (hour === 12) return '12 PM'
   return `${hour - 12} PM`
+}
+
+type ViewType = 'day' | 'week' | 'month' | 'schedule'
+
+/** Returns a human-readable date label for the header based on view type. */
+export function getDateLabel(view: ViewType, date: string): string {
+  const d = toDate(date)
+  if (view === 'day') {
+    return d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+  }
+  if (view === 'month') {
+    return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+  }
+  if (view === 'week') {
+    const days = getWeekDays(date)
+    const start = toDate(days[0]!)
+    const end = toDate(days[6]!)
+    const startStr = start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    const endStr = end.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+    return `${startStr} – ${endStr}`
+  }
+  return 'Schedule'
+}
+
+/** Returns the new date string after navigating forward/back in the given view. */
+export function navigateDate(view: ViewType, date: string, direction: 1 | -1): string {
+  if (view === 'day') return addDays(date, direction)
+  if (view === 'week') return addDays(date, 7 * direction)
+  if (view === 'month') return addMonths(date, direction)
+  return date
 }

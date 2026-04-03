@@ -1,14 +1,17 @@
+import { NowLine } from './now-line.js'
+
 interface TimeGridProps {
   dayCount: number
+  todayIndex?: number
 }
 
-export function TimeGrid({ dayCount }: TimeGridProps) {
+export function TimeGrid({ dayCount, todayIndex }: TimeGridProps) {
   const hours = Array.from({ length: 24 }, (_, i) => i)
 
   return (
     <div
       data-testid="time-grid"
-      className="grid"
+      className="relative grid"
       style={{ gridTemplateColumns: `repeat(${dayCount}, 1fr)` }}
     >
       {hours.map((hour) =>
@@ -25,6 +28,19 @@ export function TimeGrid({ dayCount }: TimeGridProps) {
             <div className="absolute inset-x-0 top-1/2 border-t border-dashed border-[var(--color-border)] opacity-50" />
           </div>
         )),
+      )}
+
+      {/* Now line overlay on today's column */}
+      {todayIndex != null && todayIndex >= 0 && todayIndex < dayCount && (
+        <div
+          className="pointer-events-none absolute inset-y-0"
+          style={{
+            left: `${(todayIndex / dayCount) * 100}%`,
+            width: `${(1 / dayCount) * 100}%`,
+          }}
+        >
+          <NowLine />
+        </div>
       )}
     </div>
   )

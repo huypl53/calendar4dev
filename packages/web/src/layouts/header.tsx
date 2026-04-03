@@ -1,22 +1,41 @@
-import { Link, useRouterState } from '@tanstack/react-router'
+import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
 import { useUIStore } from '../stores/ui-store.js'
-import { getTodayDate } from '../lib/date-utils.js'
+import { getTodayDate, getDateLabel, navigateDate } from '../lib/date-utils.js'
 import { IconButton, Button } from '../components/ui/index.js'
 
 type View = 'day' | 'week' | 'month' | 'schedule'
 
-function getActiveView(pathname: string): View {
-  if (pathname.startsWith('/day')) return 'day'
-  if (pathname.startsWith('/month')) return 'month'
-  if (pathname.startsWith('/schedule')) return 'schedule'
-  return 'week'
+function parseRoute(pathname: string): { view: View; date: string } {
+  const today = getTodayDate()
+  if (pathname.startsWith('/day/')) return { view: 'day', date: pathname.split('/')[2] ?? today }
+  if (pathname.startsWith('/month/')) return { view: 'month', date: pathname.split('/')[2] ?? today }
+  if (pathname.startsWith('/schedule')) return { view: 'schedule', date: today }
+  // Default: week
+  const date = pathname.startsWith('/week/') ? pathname.split('/')[2] ?? today : today
+  return { view: 'week', date }
+}
+
+function viewPath(view: View, date: string): string {
+  if (view === 'schedule') return '/schedule'
+  return `/${view}/${date}`
 }
 
 export function Header() {
   const today = getTodayDate()
   const toggleSidebar = useUIStore((s) => s.toggleSidebar)
   const pathname = useRouterState({ select: (s) => s.location.pathname })
-  const activeView = getActiveView(pathname)
+  const navigate = useNavigate()
+  const { view, date } = parseRoute(pathname)
+  const dateLabel = getDateLabel(view, date)
+
+  function handleNav(direction: 1 | -1) {
+    const newDate = navigateDate(view, date, direction)
+    void navigate({ to: viewPath(view, newDate) })
+  }
+
+  function handleToday() {
+    void navigate({ to: viewPath(view, today) })
+  }
 
   return (
     <header
@@ -32,30 +51,46 @@ export function Header() {
         Dev Calendar
       </span>
 
-      <Link to="/week/$date" params={{ date: today }}>
-        <Button size="sm" variant="ghost" data-testid="today-button">
-          Today
-        </Button>
-      </Link>
+      <Button size="sm" variant="ghost" data-testid="today-button" onClick={handleToday}>
+        Today
+      </Button>
+
+      {view !== 'schedule' && (
+        <>
+          <IconButton aria-label="Previous" data-testid="nav-prev" onClick={() => handleNav(-1)}>
+            <span className="text-[var(--color-text-primary)]">&#8249;</span>
+          </IconButton>
+          <IconButton aria-label="Next" data-testid="nav-next" onClick={() => handleNav(1)}>
+            <span className="text-[var(--color-text-primary)]">&#8250;</span>
+          </IconButton>
+        </>
+      )}
+
+      <span
+        data-testid="date-label"
+        className="font-sans text-[length:var(--font-size-body)] font-[number:var(--font-weight-medium)] text-[var(--color-text-primary)]"
+      >
+        {dateLabel}
+      </span>
 
       <nav className="ml-auto flex gap-1" data-testid="view-switcher">
-        <Link to="/day/$date" params={{ date: today }}>
-          <Button size="sm" variant={activeView === 'day' ? 'primary' : 'ghost'} data-testid="view-day">
+        <Link to="/day/$date" params={{ date }}>
+          <Button size="sm" variant={view === 'day' ? 'primary' : 'ghost'} data-testid="view-day">
             Day
           </Button>
         </Link>
-        <Link to="/week/$date" params={{ date: today }}>
-          <Button size="sm" variant={activeView === 'week' ? 'primary' : 'ghost'} data-testid="view-week">
+        <Link to="/week/$date" params={{ date }}>
+          <Button size="sm" variant={view === 'week' ? 'primary' : 'ghost'} data-testid="view-week">
             Week
           </Button>
         </Link>
-        <Link to="/month/$date" params={{ date: today }}>
-          <Button size="sm" variant={activeView === 'month' ? 'primary' : 'ghost'} data-testid="view-month">
+        <Link to="/month/$date" params={{ date }}>
+          <Button size="sm" variant={view === 'month' ? 'primary' : 'ghost'} data-testid="view-month">
             Month
           </Button>
         </Link>
         <Link to="/schedule">
-          <Button size="sm" variant={activeView === 'schedule' ? 'primary' : 'ghost'} data-testid="view-schedule">
+          <Button size="sm" variant={view === 'schedule' ? 'primary' : 'ghost'} data-testid="view-schedule">
             Schedule
           </Button>
         </Link>

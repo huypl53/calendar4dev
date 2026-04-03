@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useParams } from '@tanstack/react-router'
-import { getWeekDays } from '../../../lib/date-utils.js'
+import { getWeekDays, getTodayDate } from '../../../lib/date-utils.js'
 import { WeekHeader } from './week-header.js'
 import { TimeGutter } from './time-gutter.js'
 import { TimeGrid } from './time-grid.js'
@@ -8,6 +8,7 @@ import { TimeGrid } from './time-grid.js'
 export function WeekView() {
   const { date } = useParams({ strict: false }) as { date: string }
   const days = getWeekDays(date)
+  const todayIndex = days.indexOf(getTodayDate())
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -31,9 +32,9 @@ export function WeekView() {
         className="flex-1 overflow-auto"
         data-testid="week-scroll-container"
       >
-        <div className="grid" style={{ gridTemplateColumns: '60px 1fr' }}>
+        <div className="grid" style={{ gridTemplateColumns: 'var(--density-gutter-width) 1fr' }}>
           <TimeGutter />
-          <TimeGrid dayCount={7} />
+          <TimeGrid dayCount={7} todayIndex={todayIndex >= 0 ? todayIndex : undefined} />
         </div>
       </div>
     </div>

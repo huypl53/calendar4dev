@@ -39,6 +39,7 @@
   --density-header-height: 56px;
   --density-status-bar-height: 32px;
   --density-mini-cal-cell: 32px;
+  --density-gutter-width: 72px;
   --density-base-font-size: 16px;
 
   /* Typography: all sizes +2px, line heights +0.1 */

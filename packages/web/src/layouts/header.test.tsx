@@ -3,11 +3,13 @@ import { render, screen, cleanup } from '@testing-library/react'
 import { Header } from './header.js'
 
 const mockRouterState = vi.fn(() => '/week/2026-04-03')
+const mockNavigate = vi.fn()
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children, to, ...props }: Record<string, unknown>) => <a href={to as string} {...props}>{children as string}</a>,
   useRouterState: (opts: { select: (s: { location: { pathname: string } }) => string }) =>
     opts.select({ location: { pathname: mockRouterState() } }),
+  useNavigate: () => mockNavigate,
 }))
 
 vi.mock('../stores/ui-store.js', () => ({
@@ -19,6 +21,7 @@ vi.mock('../stores/ui-store.js', () => ({
 afterEach(() => {
   cleanup()
   mockRouterState.mockReturnValue('/week/2026-04-03')
+  mockNavigate.mockClear()
 })
 
 describe('Header', () => {
@@ -54,5 +57,29 @@ describe('Header', () => {
   it('renders Dev Calendar title', () => {
     render(<Header />)
     expect(screen.getByText('Dev Calendar')).toBeInTheDocument()
+  })
+
+  it('renders prev/next navigation buttons', () => {
+    render(<Header />)
+    expect(screen.getByTestId('nav-prev')).toBeInTheDocument()
+    expect(screen.getByTestId('nav-next')).toBeInTheDocument()
+  })
+
+  it('shows date label', () => {
+    render(<Header />)
+    expect(screen.getByTestId('date-label')).toBeInTheDocument()
+  })
+
+  it('hides prev/next on schedule view', () => {
+    mockRouterState.mockReturnValue('/schedule')
+    render(<Header />)
+    expect(screen.queryByTestId('nav-prev')).not.toBeInTheDocument()
+    expect(screen.queryByTestId('nav-next')).not.toBeInTheDocument()
+  })
+
+  it('shows "Schedule" as date label on schedule view', () => {
+    mockRouterState.mockReturnValue('/schedule')
+    render(<Header />)
+    expect(screen.getByTestId('date-label')).toHaveTextContent('Schedule')
   })
 })

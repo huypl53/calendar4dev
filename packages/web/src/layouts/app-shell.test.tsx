@@ -6,6 +6,7 @@ import { useUIStore } from '../stores/ui-store.js'
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children, to, ...props }: Record<string, unknown>) => <a href={to as string} {...props}>{children as string}</a>,
   useRouterState: () => '/week/2026-04-03',
+  useNavigate: () => vi.fn(),
 }))
 
 vi.mock('../hooks/use-media-query.js', () => ({
