@@ -1,15 +1,52 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useCalendarsQuery, useBootstrapCalendar } from '../hooks/use-calendars-query.js'
 import { useSharedCalendarsQuery } from '../hooks/use-shared-calendars-query.js'
 import { ShareCalendarDialog } from './share-calendar-dialog.js'
+import { useToast } from '../../../stores/toast-store.js'
 import type { Calendar } from '../../../lib/api-client.js'
 
 export function CalendarList() {
   const { data: calendars, isLoading } = useCalendarsQuery()
   const { data: sharedCalendars } = useSharedCalendarsQuery()
   const bootstrap = useBootstrapCalendar()
+  const { toast } = useToast()
+  const importRef = useRef<HTMLInputElement>(null)
+  const [importCalendarId, setImportCalendarId] = useState<string | null>(null)
 
   const [shareTarget, setShareTarget] = useState<Calendar | null>(null)
+
+  function handleExport(cal: Calendar) {
+    const a = document.createElement('a')
+    a.href = `/api/calendars/${cal.id}/export.ics`
+    a.download = `${cal.name}.ics`
+    a.click()
+  }
+
+  function handleImportClick(calendarId: string) {
+    setImportCalendarId(calendarId)
+    importRef.current?.click()
+  }
+
+  async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file || !importCalendarId) return
+    e.target.value = ''
+    try {
+      const text = await file.text()
+      const res = await fetch(`/api/calendars/${importCalendarId}/import`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/calendar' },
+        credentials: 'include',
+        body: text,
+      })
+      if (!res.ok) throw new Error('Import failed')
+      const data = await res.json() as { imported: number }
+      toast(`Imported ${data.imported} event${data.imported === 1 ? '' : 's'}`, 'success')
+    } catch {
+      toast('Failed to import calendar file', 'error')
+    }
+    setImportCalendarId(null)
+  }
 
   // Auto-bootstrap default calendar on first load
   useEffect(() => {
@@ -36,6 +73,14 @@ export function CalendarList() {
 
   return (
     <>
+      {/* Hidden file input for ICS import */}
+      <input
+        ref={importRef}
+        type="file"
+        accept=".ics,text/calendar"
+        className="sr-only"
+        onChange={handleImportFile}
+      />
       <div data-testid="calendar-list" className="space-y-[var(--space-1)]">
         {/* Owned calendars */}
         <div className="mb-[var(--space-1)] font-sans text-[length:var(--font-size-tiny)] font-[number:var(--font-weight-semibold)] text-[var(--color-text-secondary)] uppercase">
@@ -72,6 +117,32 @@ export function CalendarList() {
               <svg className="h-3 w-3" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M11.5 2a2.5 2.5 0 100 5 2.5 2.5 0 000-5zm-7 3a2.5 2.5 0 100 5 2.5 2.5 0 000-5zm7 5a2.5 2.5 0 100 5 2.5 2.5 0 000-5z"/>
                 <path d="M4.5 7.5l7-4M4.5 8.5l7 4"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              data-testid={`export-calendar-${cal.id}`}
+              onClick={() => handleExport(cal)}
+              className="shrink-0 rounded p-[2px] text-[var(--color-text-tertiary)] opacity-0 hover:bg-[var(--color-bg-primary)] hover:text-[var(--color-text-primary)] group-hover:opacity-100"
+              aria-label={`Export ${cal.name}`}
+              title="Export .ics"
+            >
+              <svg className="h-3 w-3" viewBox="0 0 16 16" fill="currentColor">
+                <path fillRule="evenodd" d="M8 1a.5.5 0 01.5.5v9.793l2.146-2.147a.5.5 0 01.708.708l-3 3a.5.5 0 01-.708 0l-3-3a.5.5 0 01.708-.708L7.5 11.293V1.5A.5.5 0 018 1z" clipRule="evenodd"/>
+                <path d="M2 13.5a.5.5 0 01.5-.5h11a.5.5 0 010 1h-11a.5.5 0 01-.5-.5z"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              data-testid={`import-calendar-${cal.id}`}
+              onClick={() => handleImportClick(cal.id)}
+              className="shrink-0 rounded p-[2px] text-[var(--color-text-tertiary)] opacity-0 hover:bg-[var(--color-bg-primary)] hover:text-[var(--color-text-primary)] group-hover:opacity-100"
+              aria-label={`Import into ${cal.name}`}
+              title="Import .ics"
+            >
+              <svg className="h-3 w-3" viewBox="0 0 16 16" fill="currentColor">
+                <path fillRule="evenodd" d="M8 15a.5.5 0 01-.5-.5V4.707L5.354 6.854a.5.5 0 11-.708-.708l3-3a.5.5 0 01.708 0l3 3a.5.5 0 11-.708.708L8.5 4.707V14.5A.5.5 0 018 15z" clipRule="evenodd"/>
+                <path d="M2 2.5a.5.5 0 01.5-.5h11a.5.5 0 010 1h-11a.5.5 0 01-.5-.5z"/>
               </svg>
             </button>
           </div>
