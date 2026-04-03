@@ -15,12 +15,15 @@ export function DayHeader({ date, allDayEvents, calendarColorMap, onEventClick }
   const dateObj = new Date(year, month - 1, day)
   const monthName = dateObj.toLocaleDateString('en-US', { month: 'long' })
 
-  // Filter to events that touch this specific date
+  // Filter to events that touch this specific date.
+  // RFC 5545 all-day DTEND is exclusive (the day after the last day), so compare with '<' not '<='.
+  // Use UTC date extraction to avoid local-timezone off-by-one on ISO strings.
+  const MAX_ALLDAY_VISIBLE = 5
   const dayEvents = (allDayEvents ?? []).filter((e) => {
-    const start = e.startTime.slice(0, 10)
-    const end = e.endTime.slice(0, 10)
-    return date >= start && date <= end
-  })
+    const start = new Date(e.startTime).toISOString().slice(0, 10)
+    const end = new Date(e.endTime).toISOString().slice(0, 10)
+    return date >= start && date < end
+  }).slice(0, MAX_ALLDAY_VISIBLE)
 
   return (
     <div data-testid="day-header">

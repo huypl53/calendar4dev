@@ -232,7 +232,15 @@ export function EventFormDialog({
             data-testid="event-allday-checkbox"
             type="checkbox"
             checked={allDay}
-            onChange={(e) => setAllDay(e.target.checked)}
+            onChange={(e) => {
+              setAllDay(e.target.checked)
+              // Clear time components when switching to all-day to avoid submitting a
+              // non-midnight time alongside allDay=true, which creates an inconsistent record.
+              if (e.target.checked) {
+                setStartTime((t) => t.slice(0, 10))
+                setEndTime((t) => t.slice(0, 10))
+              }
+            }}
             className="h-4 w-4 accent-[var(--color-accent)]"
           />
           <span className="text-[length:var(--font-size-small)] text-[var(--color-text-secondary)]">All day</span>

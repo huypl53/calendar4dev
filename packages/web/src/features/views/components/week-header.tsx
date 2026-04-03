@@ -12,15 +12,19 @@ interface WeekHeaderProps {
 }
 
 export function WeekHeader({ days, allDayEvents, calendarColorMap, onEventClick }: WeekHeaderProps) {
-  // Group all-day events by the day columns they fall in
+  // Group all-day events by the day columns they fall in.
+  // RFC 5545 all-day DTEND is exclusive, so compare with '<' not '<='.
+  // Use UTC date extraction (.toISOString().slice(0,10)) to avoid local-timezone off-by-one.
+  const MAX_ALLDAY_PER_COL = 5
   const eventsByCol: Record<number, CalendarEvent[]> = {}
   for (const event of allDayEvents ?? []) {
-    const startDate = event.startTime.slice(0, 10)
-    const endDate = event.endTime.slice(0, 10)
+    const startDate = new Date(event.startTime).toISOString().slice(0, 10)
+    const endDate = new Date(event.endTime).toISOString().slice(0, 10)
     for (let i = 0; i < days.length; i++) {
       const day = days[i]!
-      if (day >= startDate && day <= endDate) {
-        ;(eventsByCol[i] ??= []).push(event)
+      if (day >= startDate && day < endDate) {
+        const col = (eventsByCol[i] ??= [])
+        if (col.length < MAX_ALLDAY_PER_COL) col.push(event)
       }
     }
   }

@@ -16,6 +16,7 @@ export function EventSearchDialog({ open, onClose }: EventSearchDialogProps) {
   const [debouncedQuery, setDebouncedQuery] = useState('')
   const [selectedIndex, setSelectedIndex] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
+  const resultsRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
 
   const { data: calendars } = useCalendarsQuery()
@@ -47,9 +48,10 @@ export function EventSearchDialog({ open, onClose }: EventSearchDialogProps) {
     }
   }, [open])
 
+  // Reset selection whenever the debounced query changes (not just when result count changes)
   useEffect(() => {
     setSelectedIndex(0)
-  }, [items.length])
+  }, [debouncedQuery])
 
   function handleSelect(event: CalendarEvent) {
     onClose()
@@ -58,13 +60,30 @@ export function EventSearchDialog({ open, onClose }: EventSearchDialogProps) {
     void navigate({ to: `/week/${weekStart}` })
   }
 
+  function scrollSelectedIntoView(nextIndex: number) {
+    requestAnimationFrame(() => {
+      const container = resultsRef.current
+      if (!container) return
+      const btn = container.querySelectorAll<HTMLElement>('button[data-testid^="search-result-"]')[nextIndex]
+      btn?.scrollIntoView({ block: 'nearest' })
+    })
+  }
+
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === 'ArrowDown') {
       e.preventDefault()
-      setSelectedIndex((i) => Math.min(i + 1, items.length - 1))
+      setSelectedIndex((i) => {
+        const next = Math.min(i + 1, items.length - 1)
+        scrollSelectedIntoView(next)
+        return next
+      })
     } else if (e.key === 'ArrowUp') {
       e.preventDefault()
-      setSelectedIndex((i) => Math.max(i - 1, 0))
+      setSelectedIndex((i) => {
+        const next = Math.max(i - 1, 0)
+        scrollSelectedIntoView(next)
+        return next
+      })
     } else if (e.key === 'Enter') {
       e.preventDefault()
       const item = items[selectedIndex]
@@ -108,6 +127,7 @@ export function EventSearchDialog({ open, onClose }: EventSearchDialogProps) {
         </div>
 
         <div
+          ref={resultsRef}
           data-testid="search-results"
           className="max-h-72 overflow-auto py-[var(--space-1)]"
         >

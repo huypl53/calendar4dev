@@ -95,7 +95,7 @@ export async function updateMember(
 
   const [updated] = await db.update(calendarMembers)
     .set({ permissionLevel: data.permissionLevel as MemberPermission })
-    .where(eq(calendarMembers.id, memberId))
+    .where(and(eq(calendarMembers.id, memberId), eq(calendarMembers.calendarId, calendarId)))
     .returning()
 
   const user = await db.query.users.findFirst({ where: eq(users.id, member.userId) })

@@ -34,10 +34,21 @@ export function WeekView() {
     calendarColorMap[cal.id] = cal.color
   }
 
+  // Default read-only while sharedCalendars is still loading to avoid a brief editable flash
+  // for shared events before permission data arrives.
   const sharedPermissions: Record<string, string> = {}
   for (const cal of sharedCalendars ?? []) {
     sharedPermissions[cal.id] = cal.permissionLevel
   }
+  const readOnlyEventIds = new Set(
+    (events ?? [])
+      .filter((e) => {
+        const perm = sharedPermissions[e.calendarId]
+        // If sharedCalendars hasn't loaded yet and we don't own this calendar, treat as read-only.
+        return perm === 'details' || (sharedCalendars === undefined && !calendars?.some((c) => c.id === e.calendarId))
+      })
+      .map((e) => e.id),
+  )
 
   const [createDialog, setCreateDialog] = useState<{ open: boolean; start: string; end: string }>({
     open: false,
@@ -121,6 +132,7 @@ export function WeekView() {
               days={days}
               events={timedEvents}
               calendarColorMap={calendarColorMap}
+              readOnlyEventIds={readOnlyEventIds}
               onCellClick={handleCellClick}
               onEventClick={handleEventClick}
               onEventDrop={handleEventDrop}
@@ -140,7 +152,7 @@ export function WeekView() {
         open={!!editEvent}
         onClose={() => setEditEvent(undefined)}
         event={editEvent}
-        isReadOnly={!!editEvent && sharedPermissions[editEvent.calendarId] === 'details'}
+        isReadOnly={!!editEvent && (sharedPermissions[editEvent.calendarId] === 'details' || (sharedCalendars === undefined && !calendars?.some((c) => c.id === editEvent.calendarId)))}
       />
     </div>
   )

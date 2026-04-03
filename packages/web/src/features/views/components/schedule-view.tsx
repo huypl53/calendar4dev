@@ -104,7 +104,7 @@ export function ScheduleView() {
         open={!!editEvent}
         onClose={() => setEditEvent(undefined)}
         event={editEvent}
-        isReadOnly={!!editEvent && sharedPermissions[editEvent.calendarId] === 'details'}
+        isReadOnly={!!editEvent && (sharedPermissions[editEvent.calendarId] === 'details' || (sharedCalendars === undefined && !calendars?.some((c) => c.id === editEvent.calendarId)))}
       />
     </div>
   )

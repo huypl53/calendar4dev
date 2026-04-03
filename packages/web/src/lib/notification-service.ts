@@ -16,11 +16,26 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
  *
  * `now` is injectable for testing.
  */
+// Prune keys for events that fired more than 5 minutes ago to bound memory usage.
+const PRUNE_AFTER_MS = 5 * 60 * 1000
+const notifiedTimes = new Map<string, number>()
+
+function pruneNotifiedCache(nowMs: number): void {
+  for (const [key, firedAt] of notifiedTimes) {
+    if (nowMs - firedAt > PRUNE_AFTER_MS) {
+      notifiedIds.delete(key)
+      notifiedTimes.delete(key)
+    }
+  }
+}
+
 export function checkReminders(
   events: CalendarEvent[],
   onToast: (message: string) => void,
   now = new Date(),
 ): void {
+  pruneNotifiedCache(now.getTime())
+
   for (const event of events) {
     if (event.reminderMinutes === null || event.reminderMinutes === undefined) continue
 
@@ -35,6 +50,7 @@ export function checkReminders(
     const key = `${event.id}:${event.reminderMinutes}`
     if (notifiedIds.has(key)) continue
     notifiedIds.add(key)
+    notifiedTimes.set(key, now.getTime())
 
     const timeLabel = new Date(event.startTime).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
     const body = `Starts at ${timeLabel}`
@@ -54,4 +70,5 @@ export function checkReminders(
 /** Clear the notified set (useful for testing) */
 export function clearNotifiedCache(): void {
   notifiedIds.clear()
+  notifiedTimes.clear()
 }
