@@ -5,13 +5,17 @@ export interface EventBlockProps {
   onClick?: (event: CalendarEvent) => void
   /** Color override (falls back to event.color or default accent) */
   color?: string
+  /** When true, renders at reduced opacity (original position during drag) */
+  isDragging?: boolean
+  /** Called when mouse button is pressed on this block (for drag initiation) */
+  onMouseDown?: (e: React.MouseEvent, event: CalendarEvent) => void
 }
 
 /**
  * Renders an event block absolutely positioned within a time-grid day column.
  * The parent must be `position: relative` with height = 24 * rowHeight.
  */
-export function EventBlock({ event, onClick, color }: EventBlockProps) {
+export function EventBlock({ event, onClick, color, isDragging, onMouseDown }: EventBlockProps) {
   const startMinutes = getMinuteOfDay(event.startTime)
   const rawEndMinutes = getMinuteOfDay(event.endTime)
   // Clamp to end of day for events crossing midnight
@@ -30,7 +34,8 @@ export function EventBlock({ event, onClick, color }: EventBlockProps) {
       type="button"
       data-testid={`event-block-${event.id}`}
       onClick={() => onClick?.(event)}
-      className="absolute inset-x-0 mx-[1px] cursor-pointer overflow-hidden rounded-sm px-[var(--density-event-padding)] text-left transition-opacity hover:opacity-90"
+      onMouseDown={onMouseDown ? (e) => onMouseDown(e, event) : undefined}
+      className={`absolute inset-x-0 mx-[1px] cursor-pointer overflow-hidden rounded-sm px-[var(--density-event-padding)] text-left transition-opacity hover:opacity-90${isDragging ? ' opacity-40' : ''}`}
       style={{
         top: `${topPercent}%`,
         height: `${heightPercent}%`,
