@@ -7,6 +7,7 @@ import { useUpdateEventMutation, useDeleteEventMutation } from '../hooks/use-eve
 import { useToast } from '../../../stores/toast-store.js'
 import type { CalendarEvent } from '../../../lib/api-client.js'
 import { RECURRENCE_OPTIONS, REMINDER_OPTIONS } from '@dev-calendar/shared'
+import { CALENDAR_COLORS } from '@dev-calendar/shared'
 
 export interface EventFormDialogProps {
   open: boolean
@@ -41,6 +42,8 @@ export function EventFormDialog({
   const [calendarId, setCalendarId] = useState('')
   const [recurrence, setRecurrence] = useState('')
   const [reminderMinutes, setReminderMinutes] = useState<number | null>(null)
+  const [color, setColor] = useState<string | null>(null)
+  const [allDay, setAllDay] = useState(false)
 
   const isEdit = !!event
   const initializedRef = useRef(false)
@@ -62,6 +65,8 @@ export function EventFormDialog({
       setCalendarId(event.calendarId)
       setRecurrence(event.recurrenceRule ?? '')
       setReminderMinutes(event.reminderMinutes ?? null)
+      setColor(event.color ?? null)
+      setAllDay(event.allDay)
     } else {
       setTitle('')
       setDescription('')
@@ -70,6 +75,8 @@ export function EventFormDialog({
       setCalendarId(calendars?.[0]?.id ?? '')
       setRecurrence('')
       setReminderMinutes(null)
+      setColor(null)
+      setAllDay(false)
     }
   }, [open, event, defaultStart, defaultEnd])
 
@@ -99,6 +106,8 @@ export function EventFormDialog({
             endTime: new Date(endTime).toISOString(),
             recurrenceRule: recurrence || null,
             reminderMinutes: reminderMinutes,
+            color: color,
+            allDay: allDay,
           },
         },
         {
@@ -119,6 +128,8 @@ export function EventFormDialog({
           description: description.trim() || null,
           ...(recurrence ? { recurrenceRule: recurrence } : {}),
           reminderMinutes: reminderMinutes,
+          color: color,
+          allDay: allDay,
         },
         {
           onSuccess: () => {
@@ -216,30 +227,43 @@ export function EventFormDialog({
           </label>
         )}
 
-        <div className="grid grid-cols-2 gap-[var(--space-2)]">
-          <label className="flex flex-col gap-[var(--space-1)]">
-            <span className="text-[length:var(--font-size-small)] text-[var(--color-text-secondary)]">Start</span>
-            <input
-              data-testid="event-start-input"
-              type="datetime-local"
-              value={startTime}
-              onChange={(e) => setStartTime(e.target.value)}
-              required
-              className="rounded border border-[var(--color-border)] bg-[var(--color-bg-primary)] px-[var(--space-2)] py-[var(--space-1)] text-[length:var(--font-size-body)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent)]"
-            />
-          </label>
-          <label className="flex flex-col gap-[var(--space-1)]">
-            <span className="text-[length:var(--font-size-small)] text-[var(--color-text-secondary)]">End</span>
-            <input
-              data-testid="event-end-input"
-              type="datetime-local"
-              value={endTime}
-              onChange={(e) => setEndTime(e.target.value)}
-              required
-              className="rounded border border-[var(--color-border)] bg-[var(--color-bg-primary)] px-[var(--space-2)] py-[var(--space-1)] text-[length:var(--font-size-body)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent)]"
-            />
-          </label>
-        </div>
+        <label className="flex items-center gap-[var(--space-2)]">
+          <input
+            data-testid="event-allday-checkbox"
+            type="checkbox"
+            checked={allDay}
+            onChange={(e) => setAllDay(e.target.checked)}
+            className="h-4 w-4 accent-[var(--color-accent)]"
+          />
+          <span className="text-[length:var(--font-size-small)] text-[var(--color-text-secondary)]">All day</span>
+        </label>
+
+        {!allDay && (
+          <div className="grid grid-cols-2 gap-[var(--space-2)]">
+            <label className="flex flex-col gap-[var(--space-1)]">
+              <span className="text-[length:var(--font-size-small)] text-[var(--color-text-secondary)]">Start</span>
+              <input
+                data-testid="event-start-input"
+                type="datetime-local"
+                value={startTime}
+                onChange={(e) => setStartTime(e.target.value)}
+                required
+                className="rounded border border-[var(--color-border)] bg-[var(--color-bg-primary)] px-[var(--space-2)] py-[var(--space-1)] text-[length:var(--font-size-body)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent)]"
+              />
+            </label>
+            <label className="flex flex-col gap-[var(--space-1)]">
+              <span className="text-[length:var(--font-size-small)] text-[var(--color-text-secondary)]">End</span>
+              <input
+                data-testid="event-end-input"
+                type="datetime-local"
+                value={endTime}
+                onChange={(e) => setEndTime(e.target.value)}
+                required
+                className="rounded border border-[var(--color-border)] bg-[var(--color-bg-primary)] px-[var(--space-2)] py-[var(--space-1)] text-[length:var(--font-size-body)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent)]"
+              />
+            </label>
+          </div>
+        )}
 
         <label className="flex flex-col gap-[var(--space-1)]">
           <span className="text-[length:var(--font-size-small)] text-[var(--color-text-secondary)]">Description</span>
@@ -251,6 +275,32 @@ export function EventFormDialog({
             className="resize-none rounded border border-[var(--color-border)] bg-[var(--color-bg-primary)] px-[var(--space-2)] py-[var(--space-1)] text-[length:var(--font-size-body)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent)]"
           />
         </label>
+
+        <div className="flex flex-col gap-[var(--space-1)]">
+          <span className="text-[length:var(--font-size-small)] text-[var(--color-text-secondary)]">Color</span>
+          <div data-testid="event-color-picker" className="flex flex-wrap gap-[var(--space-1)]">
+            <button
+              type="button"
+              data-testid="event-color-none"
+              onClick={() => setColor(null)}
+              className={`h-6 w-6 rounded-full border-2 bg-[var(--color-bg-secondary)] ${color === null ? 'border-[var(--color-accent)]' : 'border-[var(--color-border)]'}`}
+              title="No color (use calendar color)"
+              aria-label="No color"
+            />
+            {CALENDAR_COLORS.map((c) => (
+              <button
+                key={c}
+                type="button"
+                data-testid={`event-color-swatch-${c}`}
+                onClick={() => setColor(c)}
+                className={`h-6 w-6 rounded-full border-2 ${color === c ? 'border-[var(--color-accent)]' : 'border-transparent'}`}
+                style={{ backgroundColor: c }}
+                title={c}
+                aria-label={c}
+              />
+            ))}
+          </div>
+        </div>
 
         <label className="flex flex-col gap-[var(--space-1)]">
           <span className="text-[length:var(--font-size-small)] text-[var(--color-text-secondary)]">Repeat</span>
