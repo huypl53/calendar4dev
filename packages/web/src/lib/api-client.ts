@@ -12,13 +12,14 @@ class ApiError extends Error {
 }
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const { headers: extraHeaders, ...rest } = options ?? {}
   const res = await fetch(`${BASE_URL}${path}`, {
     credentials: 'include',
+    ...rest,
     headers: {
       'Content-Type': 'application/json',
-      ...options?.headers,
+      ...(extraHeaders as Record<string, string>),
     },
-    ...options,
   })
 
   if (res.status === 204) return undefined as T

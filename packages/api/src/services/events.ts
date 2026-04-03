@@ -1,4 +1,4 @@
-import { eq, and, gte, lte } from 'drizzle-orm'
+import { eq, and, gte, lt } from 'drizzle-orm'
 import { db } from '../db/client.js'
 import { events } from '../db/schema/events.js'
 import { calendars } from '../db/schema/calendars.js'
@@ -73,11 +73,15 @@ export async function listEvents(
     conditions.push(inArray(events.calendarId, calendarIds))
   }
 
+  // Overlap semantics: event overlaps range if startTime < rangeEnd+1day AND endTime >= rangeStart
   if (filters.startDate) {
-    conditions.push(gte(events.startTime, new Date(filters.startDate)))
+    conditions.push(gte(events.endTime, new Date(filters.startDate + 'T00:00:00.000Z')))
   }
   if (filters.endDate) {
-    conditions.push(lte(events.endTime, new Date(filters.endDate)))
+    // Use day after endDate for exclusive upper bound
+    const nextDay = new Date(filters.endDate + 'T00:00:00.000Z')
+    nextDay.setDate(nextDay.getDate() + 1)
+    conditions.push(lt(events.startTime, nextDay))
   }
 
   return db.query.events.findMany({
@@ -87,7 +91,7 @@ export async function listEvents(
 }
 
 export async function updateEvent(eventId: string, data: UpdateEvent, userId: string) {
-  await assertEventOwner(eventId, userId)
+  const event = await assertEventOwner(eventId, userId)
 
   const values: Record<string, unknown> = {}
   if (data.title !== undefined) values.title = data.title
@@ -103,7 +107,7 @@ export async function updateEvent(eventId: string, data: UpdateEvent, userId: st
   if (data.recurrenceRule !== undefined) values.recurrenceRule = data.recurrenceRule
 
   if (Object.keys(values).length === 0) {
-    return assertEventOwner(eventId, userId)
+    return event
   }
 
   const [updated] = await db.update(events)

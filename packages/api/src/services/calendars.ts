@@ -15,12 +15,21 @@ export async function bootstrapCalendar(userId: string) {
   })
   if (existing) return existing
 
-  const [calendar] = await db.insert(calendars).values({
-    userId,
-    name: 'Personal',
-    isPrimary: true,
-    color: '#2f81f7',
-  }).returning()
+  try {
+    const [calendar] = await db.insert(calendars).values({
+      userId,
+      name: 'Personal',
+      isPrimary: true,
+      color: '#2f81f7',
+    }).returning()
 
-  return calendar!
+    return calendar!
+  } catch {
+    // Handle race condition: if concurrent request already inserted, fetch it
+    const fallback = await db.query.calendars.findFirst({
+      where: eq(calendars.userId, userId),
+    })
+    if (fallback) return fallback
+    throw new Error('Failed to bootstrap calendar')
+  }
 }

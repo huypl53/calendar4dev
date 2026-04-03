@@ -41,8 +41,9 @@ export function WeekView() {
 
   function handleCellClick(cellDate: string, hour: number) {
     const start = `${cellDate}T${String(hour).padStart(2, '0')}:00`
-    const endHour = hour + 1
-    const end = `${cellDate}T${String(endHour).padStart(2, '0')}:00`
+    const end = hour < 23
+      ? `${cellDate}T${String(hour + 1).padStart(2, '0')}:00`
+      : `${cellDate}T23:59`
     setCreateDialog({ open: true, start, end })
   }
 

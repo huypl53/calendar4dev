@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Dialog } from '../../../components/ui/dialog.js'
 import { Button } from '../../../components/ui/button.js'
 import { useCalendarsQuery } from '../../calendars/hooks/use-calendars-query.js'
@@ -39,10 +39,17 @@ export function EventFormDialog({
   const [recurrence, setRecurrence] = useState('')
 
   const isEdit = !!event
+  const initializedRef = useRef(false)
 
-  // Reset form when dialog opens
+  // Reset form when dialog opens (not on every calendars change)
   useEffect(() => {
-    if (!open) return
+    if (!open) {
+      initializedRef.current = false
+      return
+    }
+    if (initializedRef.current) return
+    initializedRef.current = true
+
     if (event) {
       setTitle(event.title)
       setDescription(event.description ?? '')
@@ -58,7 +65,14 @@ export function EventFormDialog({
       setCalendarId(calendars?.[0]?.id ?? '')
       setRecurrence('')
     }
-  }, [open, event, defaultStart, defaultEnd, calendars])
+  }, [open, event, defaultStart, defaultEnd])
+
+  // Set calendarId from calendars when they load (without resetting other fields)
+  useEffect(() => {
+    if (open && !isEdit && !calendarId && calendars?.[0]) {
+      setCalendarId(calendars[0].id)
+    }
+  }, [open, isEdit, calendarId, calendars])
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()

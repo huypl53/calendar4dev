@@ -13,7 +13,9 @@ export interface EventBlockProps {
  */
 export function EventBlock({ event, onClick, color }: EventBlockProps) {
   const startMinutes = getMinuteOfDay(event.startTime)
-  const endMinutes = getMinuteOfDay(event.endTime)
+  const rawEndMinutes = getMinuteOfDay(event.endTime)
+  // Clamp to end of day for events crossing midnight
+  const endMinutes = rawEndMinutes <= startMinutes ? 1440 : rawEndMinutes
   const durationMinutes = Math.max(endMinutes - startMinutes, 15) // min 15min height
 
   const topPercent = (startMinutes / 1440) * 100
