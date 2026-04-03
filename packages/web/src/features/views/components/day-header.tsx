@@ -26,7 +26,7 @@ export function DayHeader({ date }: DayHeaderProps) {
         <span
           className={`flex h-7 w-7 items-center justify-center rounded-full font-sans text-[length:var(--font-size-heading)] font-[number:var(--font-weight-medium)] ${
             today
-              ? 'bg-[var(--color-accent)] text-white'
+              ? 'bg-[var(--color-accent)] text-[var(--color-text-on-accent)]'
               : 'text-[var(--color-text-primary)]'
           }`}
         >

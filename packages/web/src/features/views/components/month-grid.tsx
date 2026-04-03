@@ -41,7 +41,7 @@ export function MonthGrid({ date }: MonthGridProps) {
                 <span
                   className={`flex h-6 w-6 items-center justify-center rounded-full font-sans text-[length:var(--font-size-small)] ${
                     today
-                      ? 'bg-[var(--color-accent)] text-white'
+                      ? 'bg-[var(--color-accent)] text-[var(--color-text-on-accent)]'
                       : inMonth
                         ? 'text-[var(--color-text-primary)]'
                         : 'text-[var(--color-text-tertiary)]'

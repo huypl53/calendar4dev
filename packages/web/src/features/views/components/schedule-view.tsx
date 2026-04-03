@@ -25,7 +25,7 @@ export function ScheduleView() {
               data-testid={`schedule-header-${date}`}
               className={`sticky top-0 border-b px-4 py-2 font-sans text-[length:var(--font-size-body)] font-[number:var(--font-weight-medium)] ${
                 today_
-                  ? 'border-[var(--color-accent)] bg-[var(--color-accent)] text-white'
+                  ? 'border-[var(--color-accent)] bg-[var(--color-accent)] text-[var(--color-text-on-accent)]'
                   : 'border-[var(--color-border)] bg-[var(--color-bg-secondary)] text-[var(--color-text-primary)]'
               }`}
             >

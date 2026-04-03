@@ -20,6 +20,7 @@
   --color-warning: #d29922;
   --color-danger: #f85149;
   --color-now-line: var(--color-danger);
+  --color-text-on-accent: #ffffff;
 
   /* === Font Stacks === */
   --font-sans: 'Inter', 'JetBrains Sans', system-ui, sans-serif;
