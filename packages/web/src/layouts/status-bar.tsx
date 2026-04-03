@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useRouterState } from '@tanstack/react-router'
+import { useOnlineStatus } from '../hooks/use-online-status.js'
 
 function formatTime(date: Date): string {
   return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
@@ -15,6 +16,7 @@ function getViewLabel(pathname: string): string {
 export function StatusBar() {
   const [time, setTime] = useState(() => formatTime(new Date()))
   const pathname = useRouterState({ select: (s) => s.location.pathname })
+  const isOnline = useOnlineStatus()
   const viewLabel = getViewLabel(pathname)
 
   useEffect(() => {
@@ -48,7 +50,14 @@ export function StatusBar() {
         <span className="text-[var(--color-text-tertiary)]">
           <kbd className="rounded border border-[var(--color-border)] px-1">?</kbd> shortcuts
         </span>
-        <span data-testid="status-bar-sync">Synced</span>
+        {isOnline ? (
+          <span data-testid="status-bar-sync">Synced</span>
+        ) : (
+          <span data-testid="status-bar-offline" className="flex items-center gap-1 text-amber-500">
+            <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500" />
+            Offline
+          </span>
+        )}
       </div>
     </footer>
   )
