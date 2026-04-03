@@ -192,4 +192,7 @@ export const eventsApi = {
 
   delete: (id: string) =>
     request<void>(`/api/events/${id}`, { method: 'DELETE' }),
+
+  search: (q: string) =>
+    request<{ data: CalendarEvent[] }>(`/api/events/search?q=${encodeURIComponent(q)}`).then((r) => r.data),
 }

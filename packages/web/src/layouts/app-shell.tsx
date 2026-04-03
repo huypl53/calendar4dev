@@ -9,6 +9,7 @@ import { CommandPalette } from '../features/command-palette/command-palette.js'
 import { ShortcutHelpDialog } from '../features/command-palette/shortcut-help-dialog.js'
 import { createCommands } from '../features/command-palette/commands.js'
 import { EventFormDialog } from '../features/events/components/event-form-dialog.js'
+import { EventSearchDialog } from '../features/events/components/event-search-dialog.js'
 import { Header } from './header.js'
 import { Sidebar } from './sidebar.js'
 import { StatusBar } from './status-bar.js'
@@ -54,6 +55,7 @@ export function AppShell({ children }: AppShellProps) {
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [helpOpen, setHelpOpen] = useState(false)
   const [createEventOpen, setCreateEventOpen] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
 
   const { toast } = useToast()
 
@@ -97,6 +99,7 @@ export function AppShell({ children }: AppShellProps) {
         toggleDensity,
         toggleSidebar,
         openCreateEvent: () => setCreateEventOpen(true),
+        openSearch: () => setSearchOpen(true),
       }),
     [doNavigate, today, toggleTheme, toggleDensity, toggleSidebar],
   )
@@ -104,6 +107,7 @@ export function AppShell({ children }: AppShellProps) {
   const shortcuts = useMemo(
     () => ({
       'cmd+k': () => setPaletteOpen(true),
+      '/': () => setSearchOpen(true),
       '?': () => setHelpOpen((prev) => !prev),
       d: () => doNavigate(`/day/${today}`),
       w: () => doNavigate(`/week/${today}`),
@@ -177,6 +181,11 @@ export function AppShell({ children }: AppShellProps) {
       <EventFormDialog
         open={createEventOpen}
         onClose={() => setCreateEventOpen(false)}
+      />
+
+      <EventSearchDialog
+        open={searchOpen}
+        onClose={() => setSearchOpen(false)}
       />
     </div>
   )

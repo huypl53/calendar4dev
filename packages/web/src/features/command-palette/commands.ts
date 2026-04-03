@@ -13,6 +13,7 @@ export type CommandFactory = (deps: {
   toggleDensity: () => void
   toggleSidebar: () => void
   openCreateEvent: () => void
+  openSearch: () => void
 }) => Command[]
 
 export const createCommands: CommandFactory = ({
@@ -22,6 +23,7 @@ export const createCommands: CommandFactory = ({
   toggleDensity,
   toggleSidebar,
   openCreateEvent,
+  openSearch,
 }) => [
   // Views
   {
@@ -61,6 +63,13 @@ export const createCommands: CommandFactory = ({
     action: () => navigate(`/week/${today}`),
   },
   // Actions
+  {
+    id: 'search-events',
+    label: 'Search Events',
+    shortcut: '/',
+    category: 'actions',
+    action: openSearch,
+  },
   {
     id: 'create-event',
     label: 'Create Event',

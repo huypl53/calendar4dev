@@ -43,6 +43,17 @@ app.post('/api/events', async (c) => {
   return c.json({ data: serializeEvent(event) }, 201)
 })
 
+// GET /api/events/search?q=<query>
+app.get('/api/events/search', async (c) => {
+  const q = c.req.query('q') ?? ''
+  if (q.trim().length < 2) {
+    return c.json({ data: [] })
+  }
+  const user = c.get('user')
+  const results = await eventService.searchEvents(user.id, q)
+  return c.json({ data: results.map((e) => serializeEvent(e as Record<string, unknown>)) })
+})
+
 // GET /api/events
 app.get('/api/events', async (c) => {
   const calendarId = c.req.query('calendarId')
