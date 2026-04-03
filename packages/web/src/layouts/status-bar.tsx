@@ -8,8 +8,20 @@ export function StatusBar() {
   const [time, setTime] = useState(() => formatTime(new Date()))
 
   useEffect(() => {
-    const id = setInterval(() => setTime(formatTime(new Date())), 60_000)
-    return () => clearInterval(id)
+    const tick = () => setTime(formatTime(new Date()))
+    // Schedule first tick at next minute boundary, then every 60s
+    const msUntilNextMinute = 60_000 - (Date.now() % 60_000)
+    const timeout = setTimeout(() => {
+      tick()
+      const interval = setInterval(tick, 60_000)
+      // Store interval id for cleanup in the ref below
+      intervalRef = interval
+    }, msUntilNextMinute)
+    let intervalRef: ReturnType<typeof setInterval> | null = null
+    return () => {
+      clearTimeout(timeout)
+      if (intervalRef) clearInterval(intervalRef)
+    }
   }, [])
 
   return (

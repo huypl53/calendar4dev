@@ -11,7 +11,7 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const sidebarOpen = useUIStore((state) => state.sidebarOpen)
-  const toggleSidebar = useUIStore((state) => state.toggleSidebar)
+  const setSidebarOpen = useUIStore((state) => state.setSidebarOpen)
   const theme = useUIStore((state) => state.theme)
   const density = useUIStore((state) => state.density)
   const accentColor = useUIStore((state) => state.accentColor)
@@ -41,7 +41,7 @@ export function AppShell({ children }: AppShellProps) {
             <div
               data-testid="sidebar-backdrop"
               className="fixed inset-0 z-40 bg-black/50"
-              onClick={toggleSidebar}
+              onClick={() => setSidebarOpen(false)}
             />
           )}
           <aside

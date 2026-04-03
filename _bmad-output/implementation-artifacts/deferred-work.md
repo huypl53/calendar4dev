@@ -38,3 +38,11 @@
 - Tooltip lacks aria-describedby linking trigger to tooltip element — ARIA tooltip pattern compliance for Epic 9
 - Tooltip positions above trigger only, will clip in overflow-hidden containers (e.g., sidebar) — add placement strategy when needed
 - Accent color CSS variable flash on page load before useEffect fires — accent-dependent components (Button primary, Badge dot) briefly show default color
+
+## Deferred from: code review of 2-4-application-shell-polish-responsive-layout (2026-04-03)
+
+- Mobile sidebar overlay needs focus trap and Escape key handler — address in Epic 9 accessibility story
+- useMediaQuery hook SSR mismatch — no impact in current SPA, address if SSR is added
+- Auto-close sidebar when viewport transitions from mobile to desktop — UX polish for future story
+- "Today" button date goes stale after midnight if app stays open — add midnight boundary check
+- View switcher buttons need aria-current="page" for active state — Epic 9 accessibility

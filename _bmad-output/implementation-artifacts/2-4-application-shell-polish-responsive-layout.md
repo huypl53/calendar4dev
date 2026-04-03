@@ -1,6 +1,6 @@
 # Story 2.4: Application Shell Polish & Responsive Layout
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 

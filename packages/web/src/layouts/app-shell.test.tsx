@@ -186,7 +186,7 @@ describe('AppShell', () => {
       expect(screen.queryByTestId('sidebar-backdrop')).not.toBeInTheDocument()
     })
 
-    it('clicking backdrop closes sidebar', () => {
+    it('clicking backdrop closes sidebar via setSidebarOpen(false)', () => {
       useUIStore.setState({ sidebarOpen: true })
       render(
         <AppShell>
