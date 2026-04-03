@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
 import { useUIStore } from '../stores/ui-store.js'
 import { getTodayDate, getDateLabel, navigateDate } from '../lib/date-utils.js'
@@ -21,7 +22,11 @@ function viewPath(view: View, date: string): string {
 }
 
 export function Header() {
-  const today = getTodayDate()
+  const [today, setToday] = useState(getTodayDate)
+  useEffect(() => {
+    const id = setInterval(() => setToday(getTodayDate()), 60_000)
+    return () => clearInterval(id)
+  }, [])
   const toggleSidebar = useUIStore((s) => s.toggleSidebar)
   const pathname = useRouterState({ select: (s) => s.location.pathname })
   const navigate = useNavigate()

@@ -6,6 +6,14 @@ import { Button } from '../../../components/ui/index.js'
 
 const HEX_RE = /^#[0-9a-fA-F]{6}$/
 
+/** Returns true if the hex color is dark enough to warrant white text. */
+function isHexDark(hex: string): boolean {
+  const r = parseInt(hex.slice(1, 3), 16)
+  const g = parseInt(hex.slice(3, 5), 16)
+  const b = parseInt(hex.slice(5, 7), 16)
+  return 0.299 * r + 0.587 * g + 0.114 * b < 128
+}
+
 export function AppearanceSettings() {
   const theme = useUIStore((s) => s.theme)
   const density = useUIStore((s) => s.density)
@@ -120,7 +128,7 @@ export function AppearanceSettings() {
               style={{ backgroundColor: preset.hex }}
             >
               {accentColor === preset.hex && (
-                <svg className="h-3 w-3 text-white" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2">
+                <svg className={`h-3 w-3 ${isHexDark(preset.hex) ? 'text-white' : 'text-black'}`} viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M2 6l3 3 5-5" />
                 </svg>
               )}

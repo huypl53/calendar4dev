@@ -15,6 +15,9 @@ interface ToastState {
   removeToast: (id: string) => void
 }
 
+// Module-level timer registry so timers can be cancelled when toasts are dismissed early
+const toastTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
 export const useToastStore = create<ToastState>()((set, get) => ({
   toasts: [],
   _nextId: 0,
@@ -24,8 +27,11 @@ export const useToastStore = create<ToastState>()((set, get) => ({
     set((state) => ({ toasts: [...state.toasts, { id, message, variant }], _nextId: nextId }))
     return id
   },
-  removeToast: (id) =>
-    set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) })),
+  removeToast: (id) => {
+    const timer = toastTimers.get(id)
+    if (timer !== undefined) { clearTimeout(timer); toastTimers.delete(id) }
+    set((state) => ({ toasts: state.toasts.filter((t) => t.id !== id) }))
+  },
 }))
 
 export function useToast() {
@@ -35,7 +41,8 @@ export function useToast() {
   return {
     toast: (message: string, variant?: ToastVariant, duration = 5000) => {
       const id = addToast(message, variant)
-      setTimeout(() => removeToast(id), duration)
+      const timerId = setTimeout(() => removeToast(id), duration)
+      toastTimers.set(id, timerId)
       return id
     },
   }
