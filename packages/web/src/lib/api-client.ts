@@ -127,6 +127,32 @@ export const sharedCalendarsApi = {
 }
 
 // Events API
+// User types
+export interface UserProfile {
+  id: string
+  email: string
+  name: string | null
+  image: string | null
+  hasPassword: boolean
+}
+
+export const userApi = {
+  getProfile: () =>
+    request<{ data: UserProfile }>('/api/user/profile').then((r) => r.data),
+
+  updateProfile: (data: { name: string }) =>
+    request<{ data: UserProfile }>('/api/user/profile', {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }).then((r) => r.data),
+
+  changePassword: (data: { currentPassword: string; newPassword: string }) =>
+    request<{ data: { success: boolean } }>('/api/user/change-password', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }).then((r) => r.data),
+}
+
 export const eventsApi = {
   list: (params: { calendarId?: string; startDate?: string; endDate?: string }) => {
     const qs = new URLSearchParams()

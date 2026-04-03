@@ -2,13 +2,20 @@ import { useState } from 'react'
 import { AppearanceSettings } from '../features/settings/index.js'
 import { MiniCalendar } from '../features/calendars/components/mini-calendar.js'
 import { CalendarList } from '../features/calendars/components/calendar-list.js'
+import { ProfileSettings } from '../features/user/components/profile-settings.js'
 
 interface SidebarProps {
   embedded?: boolean
 }
 
+type Panel = 'settings' | 'profile' | null
+
 function SidebarContent() {
-  const [showSettings, setShowSettings] = useState(false)
+  const [panel, setPanel] = useState<Panel>(null)
+
+  function toggle(name: Panel) {
+    setPanel((prev) => (prev === name ? null : name))
+  }
 
   return (
     <>
@@ -17,11 +24,11 @@ function SidebarContent() {
         <CalendarList />
       </div>
 
-      <div className="border-t border-[var(--color-border)] p-2">
+      <div className="border-t border-[var(--color-border)] p-2 space-y-1">
         <button
           type="button"
           data-testid="settings-toggle"
-          onClick={() => setShowSettings(!showSettings)}
+          onClick={() => toggle('settings')}
           className="flex w-full items-center gap-2 rounded px-2 py-1 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-tertiary)] hover:text-[var(--color-text-primary)]"
           style={{ fontSize: 'var(--font-size-small)' }}
         >
@@ -31,9 +38,28 @@ function SidebarContent() {
           Settings
         </button>
 
-        {showSettings && (
+        <button
+          type="button"
+          data-testid="profile-toggle"
+          onClick={() => toggle('profile')}
+          className="flex w-full items-center gap-2 rounded px-2 py-1 text-[var(--color-text-secondary)] hover:bg-[var(--color-bg-tertiary)] hover:text-[var(--color-text-primary)]"
+          style={{ fontSize: 'var(--font-size-small)' }}
+        >
+          <svg className="h-4 w-4" viewBox="0 0 16 16" fill="currentColor">
+            <path d="M8 8a3 3 0 100-6 3 3 0 000 6zm-5 6s-1 0-1-1 1-4 6-4 6 3 6 4-1 1-1 1H3z"/>
+          </svg>
+          Profile
+        </button>
+
+        {panel === 'settings' && (
           <div className="mt-2" data-testid="settings-panel">
             <AppearanceSettings />
+          </div>
+        )}
+
+        {panel === 'profile' && (
+          <div className="mt-2" data-testid="profile-panel">
+            <ProfileSettings />
           </div>
         )}
       </div>
