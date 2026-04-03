@@ -1,6 +1,14 @@
 import { eq } from 'drizzle-orm'
 import { db } from '../db/client.js'
 import { calendars } from '../db/schema/calendars.js'
+import { NotFoundError, ForbiddenError } from '../lib/errors.js'
+
+export async function getCalendarForOwner(calendarId: string, userId: string) {
+  const calendar = await db.query.calendars.findFirst({ where: eq(calendars.id, calendarId) })
+  if (!calendar) throw new NotFoundError('Calendar not found')
+  if (calendar.userId !== userId) throw new ForbiddenError('Not calendar owner')
+  return calendar
+}
 
 export async function listCalendars(userId: string) {
   return db.query.calendars.findMany({
