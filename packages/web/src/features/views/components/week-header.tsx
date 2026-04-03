@@ -1,10 +1,30 @@
 import { formatDayHeader, isToday } from '../../../lib/date-utils.js'
+import type { CalendarEvent } from '../../../lib/api-client.js'
 
 interface WeekHeaderProps {
   days: string[]
+  /** All-day events to display in the all-day row */
+  allDayEvents?: CalendarEvent[]
+  /** calendarId → color for event coloring */
+  calendarColorMap?: Record<string, string>
+  /** Called when an all-day event is clicked */
+  onEventClick?: (event: CalendarEvent) => void
 }
 
-export function WeekHeader({ days }: WeekHeaderProps) {
+export function WeekHeader({ days, allDayEvents, calendarColorMap, onEventClick }: WeekHeaderProps) {
+  // Group all-day events by the day columns they fall in
+  const eventsByCol: Record<number, CalendarEvent[]> = {}
+  for (const event of allDayEvents ?? []) {
+    const startDate = event.startTime.slice(0, 10)
+    const endDate = event.endTime.slice(0, 10)
+    for (let i = 0; i < days.length; i++) {
+      const day = days[i]!
+      if (day >= startDate && day <= endDate) {
+        ;(eventsByCol[i] ??= []).push(event)
+      }
+    }
+  }
+
   return (
     <div data-testid="week-header">
       {/* Day column headers */}
@@ -43,15 +63,38 @@ export function WeekHeader({ days }: WeekHeaderProps) {
       {/* All-day section */}
       <div
         data-testid="all-day-section"
-        className="grid min-h-[28px] border-b border-[var(--color-border)]"
-        style={{ gridTemplateColumns: 'var(--density-gutter-width) repeat(7, 1fr)' }}
+        className="grid border-b border-[var(--color-border)]"
+        style={{
+          gridTemplateColumns: 'var(--density-gutter-width) repeat(7, 1fr)',
+          minHeight: '28px',
+        }}
       >
-        <div className="flex items-center justify-end pr-2 font-mono text-[length:var(--font-size-tiny)] text-[var(--color-text-tertiary)]">
+        <div className="flex items-start pt-1 justify-end pr-2 font-mono text-[length:var(--font-size-tiny)] text-[var(--color-text-tertiary)]">
           all-day
         </div>
-        {days.map((date) => (
-          <div key={date} className="border-r border-[var(--color-border)]" />
-        ))}
+        {days.map((_, colIdx) => {
+          const colEvents = eventsByCol[colIdx] ?? []
+          return (
+            <div key={colIdx} className="border-r border-[var(--color-border)] py-[2px] px-[1px] flex flex-col gap-[1px]">
+              {colEvents.map((event) => {
+                const color = calendarColorMap?.[event.calendarId] ?? event.color ?? 'var(--color-accent)'
+                return (
+                  <button
+                    key={event.id}
+                    type="button"
+                    data-testid={`allday-event-${event.id}`}
+                    onClick={() => onEventClick?.(event)}
+                    className="w-full truncate rounded-sm px-1 text-left font-sans text-[length:var(--font-size-tiny)] leading-tight text-[var(--color-text-on-accent)] hover:opacity-90"
+                    style={{ backgroundColor: color }}
+                    title={event.title}
+                  >
+                    {event.title}
+                  </button>
+                )
+              })}
+            </div>
+          )
+        })}
       </div>
     </div>
   )

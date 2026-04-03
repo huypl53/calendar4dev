@@ -92,9 +92,17 @@ export function WeekView() {
     )
   }
 
+  const allDayEvents = events?.filter((e) => e.allDay) ?? []
+  const timedEvents = events?.filter((e) => !e.allDay)
+
   return (
     <div data-testid="week-view" className="flex h-full flex-col">
-      <WeekHeader days={days} />
+      <WeekHeader
+        days={days}
+        allDayEvents={allDayEvents}
+        calendarColorMap={calendarColorMap}
+        onEventClick={handleEventClick}
+      />
       <div
         ref={scrollRef}
         className="flex-1 overflow-auto"
@@ -111,7 +119,7 @@ export function WeekView() {
               dayCount={7}
               todayIndex={todayIndex >= 0 ? todayIndex : undefined}
               days={days}
-              events={events}
+              events={timedEvents}
               calendarColorMap={calendarColorMap}
               onCellClick={handleCellClick}
               onEventClick={handleEventClick}
