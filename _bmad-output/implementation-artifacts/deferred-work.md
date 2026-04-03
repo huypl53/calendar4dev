@@ -22,3 +22,12 @@
 
 - Health check SELECT 1 has no timeout — can hang forever if DB is reachable but unresponsive. Add statement_timeout or Promise.race with deadline.
 - console.error in env.ts and console.log in migrate.ts — replace with pino logger (pre-existing from stories 1-1/1-2, but violates "no console.log" constraint)
+
+## Deferred from: code review of 2-2-theme-density-accent-color-controls (2026-04-03)
+
+- Hydration flash on page load — persisted theme/accent/density applied via useEffect after first paint; light-theme users see dark flash. Address with inline script in index.html or SSR
+- Inline style for --color-accent on html prevents CSS-only overrides (e.g. high-contrast theme). Architectural constraint — future themes must use JS
+- Settings panel state (showSettings) not reset when sidebar closes — user sees stale expanded panel on reopen. Minor UX, address in polish story
+- 3-digit hex shorthand (#fff) rejected by validator — only 6-digit supported. Document or extend in future UX pass
+- Login page uses --color-accent but AppShell (which sets it) is not rendered on /login — returning users see default blue instead of persisted accent
+- White checkmark on light-colored accent presets has poor contrast — needs luminance-based check for dark/light checkmark

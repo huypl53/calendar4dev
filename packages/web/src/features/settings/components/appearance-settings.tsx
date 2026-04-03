@@ -9,17 +9,19 @@ export function AppearanceSettings() {
   const density = useUIStore((s) => s.density)
   const accentColor = useUIStore((s) => s.accentColor)
   const setTheme = useUIStore((s) => s.setTheme)
-  const toggleDensity = useUIStore((s) => s.toggleDensity)
+  const setDensity = useUIStore((s) => s.setDensity)
   const setAccentColor = useUIStore((s) => s.setAccentColor)
 
   const [customHex, setCustomHex] = useState('')
   const [hexError, setHexError] = useState(false)
 
   function handleCustomHex() {
-    const value = customHex.startsWith('#') ? customHex : `#${customHex}`
+    const raw = customHex.startsWith('#') ? customHex : `#${customHex}`
+    const value = raw.toLowerCase()
     if (HEX_RE.test(value)) {
       setAccentColor(value)
       setHexError(false)
+      setCustomHex('')
     } else {
       setHexError(true)
     }
@@ -69,7 +71,7 @@ export function AppearanceSettings() {
           <button
             type="button"
             data-testid="density-compact"
-            onClick={() => { if (density !== 'compact') toggleDensity() }}
+            onClick={() => setDensity('compact')}
             className={`rounded px-3 py-1 text-[var(--font-size-small)] ${
               density === 'compact'
                 ? 'bg-[var(--color-accent)] text-white'
@@ -81,7 +83,7 @@ export function AppearanceSettings() {
           <button
             type="button"
             data-testid="density-comfortable"
-            onClick={() => { if (density !== 'comfortable') toggleDensity() }}
+            onClick={() => setDensity('comfortable')}
             className={`rounded px-3 py-1 text-[var(--font-size-small)] ${
               density === 'comfortable'
                 ? 'bg-[var(--color-accent)] text-white'

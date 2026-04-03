@@ -9,6 +9,7 @@ export interface UIState {
   toggleSidebar: () => void
   setTheme: (theme: 'dark' | 'light') => void
   toggleTheme: () => void
+  setDensity: (density: 'compact' | 'comfortable') => void
   toggleDensity: () => void
   setAccentColor: (color: string) => void
 }
@@ -24,6 +25,7 @@ export const useUIStore = create<UIState>()(
       setTheme: (theme) => set({ theme }),
       toggleTheme: () =>
         set((state) => ({ theme: state.theme === 'dark' ? 'light' : 'dark' })),
+      setDensity: (density) => set({ density }),
       toggleDensity: () =>
         set((state) => ({
           density: state.density === 'compact' ? 'comfortable' : 'compact',

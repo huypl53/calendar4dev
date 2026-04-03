@@ -72,6 +72,19 @@ describe('useUIStore', () => {
     })
   })
 
+  describe('setDensity', () => {
+    it('sets density to comfortable', () => {
+      useUIStore.getState().setDensity('comfortable')
+      expect(useUIStore.getState().density).toBe('comfortable')
+    })
+
+    it('sets density to compact', () => {
+      useUIStore.getState().setDensity('comfortable')
+      useUIStore.getState().setDensity('compact')
+      expect(useUIStore.getState().density).toBe('compact')
+    })
+  })
+
   describe('toggleDensity', () => {
     it('toggles density from compact to comfortable', () => {
       useUIStore.getState().toggleDensity()

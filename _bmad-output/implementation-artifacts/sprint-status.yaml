@@ -58,7 +58,12 @@ development_status:
   # Epic 2: Design System & Application Shell
   # FRs: FR12, FR105, FR106, FR109
   # Users see the Dev Calendar visual identity in a fully rendered application shell
-  epic-2: backlog
+  epic-2: in-progress
+  2-1-design-token-system-typography-foundation: done
+  2-2-theme-density-accent-color-controls: done
+  2-3-core-ui-primitives: backlog
+  2-4-application-shell-polish-responsive-layout: backlog
+  2-5-overlay-feedback-components: backlog
   epic-2-retrospective: optional
 
   # Epic 3: Calendar Grid & View Engine

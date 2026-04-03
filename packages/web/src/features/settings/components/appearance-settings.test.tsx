@@ -69,4 +69,20 @@ describe('AppearanceSettings', () => {
     fireEvent.click(screen.getByTestId('apply-custom-hex'))
     expect(useUIStore.getState().accentColor).toBe('#2f81f7')
   })
+
+  it('normalizes custom hex to lowercase', () => {
+    render(<AppearanceSettings />)
+    const input = screen.getByTestId('custom-hex-input')
+    fireEvent.change(input, { target: { value: '#FF5500' } })
+    fireEvent.click(screen.getByTestId('apply-custom-hex'))
+    expect(useUIStore.getState().accentColor).toBe('#ff5500')
+  })
+
+  it('clears custom hex input after successful apply', () => {
+    render(<AppearanceSettings />)
+    const input = screen.getByTestId('custom-hex-input') as HTMLInputElement
+    fireEvent.change(input, { target: { value: '#ff5500' } })
+    fireEvent.click(screen.getByTestId('apply-custom-hex'))
+    expect(input.value).toBe('')
+  })
 })
