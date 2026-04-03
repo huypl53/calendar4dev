@@ -139,17 +139,24 @@ development_status:
 
   # Epic 11: Collaboration & Calendar Sharing
   # FRs: FR52, FR53, FR64-FR70, FR72, FR73, FR98, FR99, FR112
-  epic-11: backlog
+  epic-11: done
+  11-1-calendar-sharing-api: done
+  11-2-calendar-sharing-frontend: done
+  11-3-user-profile: done
   epic-11-retrospective: optional
 
   # Epic 12: Notifications & Alerts
   # FRs: FR42, FR74-FR80
-  epic-12: backlog
+  epic-12: done
+  12-1-event-reminders-browser-notifications: done
+  epic-12-retrospective: optional
   epic-12-retrospective: optional
 
   # Epic 13: Advanced Event Features
   # FRs: FR20, FR34-FR36, FR38, FR40, FR41, FR104, FR108
-  epic-13: backlog
+  epic-13: done
+  13-1-event-colors: done
+  13-1-event-drag-drop: done
   epic-13-retrospective: optional
 
   # Epic 14: Search, Context Menus & Advanced Views
