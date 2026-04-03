@@ -19,3 +19,90 @@ export function isValidDateParam(value: string): boolean {
   const d = new Date(year, month - 1, day)
   return d.getFullYear() === year && d.getMonth() === month - 1 && d.getDate() === day
 }
+
+/** Returns true if the given YYYY-MM-DD string is today's date. */
+export function isToday(date: string): boolean {
+  return date === getTodayDate()
+}
+
+function toDate(dateStr: string): Date {
+  const [y, m, d] = dateStr.split('-').map(Number) as [number, number, number]
+  return new Date(y, m - 1, d)
+}
+
+function formatDate(d: Date): string {
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+/** Returns 7 YYYY-MM-DD dates for the week containing the given date (Monday start). */
+export function getWeekDays(date: string): string[] {
+  const d = toDate(date)
+  const dayOfWeek = d.getDay()
+  // Monday = 0, Sunday = 6
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+  const monday = new Date(d)
+  monday.setDate(d.getDate() + mondayOffset)
+
+  const days: string[] = []
+  for (let i = 0; i < 7; i++) {
+    const day = new Date(monday)
+    day.setDate(monday.getDate() + i)
+    days.push(formatDate(day))
+  }
+  return days
+}
+
+/** Returns the day name and number for a date header. */
+export function formatDayHeader(date: string): { dayName: string; dayNumber: number } {
+  const d = toDate(date)
+  const dayName = d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase()
+  return { dayName, dayNumber: d.getDate() }
+}
+
+/** Returns an array of month dates for a calendar grid (6 weeks × 7 days). */
+export function getMonthGridDates(date: string): string[] {
+  const d = toDate(date)
+  const firstOfMonth = new Date(d.getFullYear(), d.getMonth(), 1)
+  const dayOfWeek = firstOfMonth.getDay()
+  const mondayOffset = dayOfWeek === 0 ? -6 : 1 - dayOfWeek
+  const gridStart = new Date(firstOfMonth)
+  gridStart.setDate(firstOfMonth.getDate() + mondayOffset)
+
+  const dates: string[] = []
+  for (let i = 0; i < 42; i++) {
+    const day = new Date(gridStart)
+    day.setDate(gridStart.getDate() + i)
+    dates.push(formatDate(day))
+  }
+  return dates
+}
+
+/** Returns true if the date is in the given month (YYYY-MM-DD, compared to another YYYY-MM-DD). */
+export function isSameMonth(date: string, reference: string): boolean {
+  return date.slice(0, 7) === reference.slice(0, 7)
+}
+
+/** Adds days to a YYYY-MM-DD date and returns the result as YYYY-MM-DD. */
+export function addDays(date: string, days: number): string {
+  const d = toDate(date)
+  d.setDate(d.getDate() + days)
+  return formatDate(d)
+}
+
+/** Adds months to a YYYY-MM-DD date. */
+export function addMonths(date: string, months: number): string {
+  const d = toDate(date)
+  d.setMonth(d.getMonth() + months)
+  return formatDate(d)
+}
+
+/** Format hour for time gutter (12 AM, 1 AM, ... 11 PM). */
+export function formatHour(hour: number): string {
+  if (hour === 0) return '12 AM'
+  if (hour < 12) return `${hour} AM`
+  if (hour === 12) return '12 PM'
+  return `${hour - 12} PM`
+}

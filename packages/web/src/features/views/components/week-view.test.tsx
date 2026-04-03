@@ -1,4 +1,4 @@
-import { describe, it, expect, afterEach } from 'vitest'
+import { describe, it, expect, vi, afterEach } from 'vitest'
 import { render, screen, cleanup } from '@testing-library/react'
 import {
   createRootRoute,
@@ -11,6 +11,7 @@ import { WeekView } from './week-view.js'
 
 afterEach(() => {
   cleanup()
+  vi.restoreAllMocks()
 })
 
 function renderWithRouter(date: string) {
@@ -31,17 +32,48 @@ function renderWithRouter(date: string) {
 }
 
 describe('WeekView', () => {
-  it('renders with date from route param', async () => {
-    renderWithRouter('2026-04-03')
-
-    expect(await screen.findByText(/Week View/)).toBeInTheDocument()
-    expect(await screen.findByText(/2026-04-03/)).toBeInTheDocument()
+  it('renders the week view container', async () => {
+    renderWithRouter('2026-04-01')
+    expect(await screen.findByTestId('week-view')).toBeInTheDocument()
   })
 
-  it('renders with a different date param', async () => {
-    renderWithRouter('2025-12-25')
+  it('renders the week header with day columns', async () => {
+    renderWithRouter('2026-04-01')
+    expect(await screen.findByTestId('week-header')).toBeInTheDocument()
+  })
 
-    expect(await screen.findByText(/Week View/)).toBeInTheDocument()
-    expect(await screen.findByText(/2025-12-25/)).toBeInTheDocument()
+  it('renders the time gutter', async () => {
+    renderWithRouter('2026-04-01')
+    expect(await screen.findByTestId('time-gutter')).toBeInTheDocument()
+  })
+
+  it('renders the time grid', async () => {
+    renderWithRouter('2026-04-01')
+    expect(await screen.findByTestId('time-grid')).toBeInTheDocument()
+  })
+
+  it('renders a scrollable container', async () => {
+    renderWithRouter('2026-04-01')
+    expect(await screen.findByTestId('week-scroll-container')).toBeInTheDocument()
+  })
+
+  it('auto-scrolls to 8 AM on mount', async () => {
+    // Mock getComputedStyle to return a row height
+    const original = window.getComputedStyle
+    vi.spyOn(window, 'getComputedStyle').mockImplementation((el) => {
+      const style = original(el)
+      return {
+        ...style,
+        getPropertyValue: (prop: string) => {
+          if (prop === '--density-row-height') return '48'
+          return style.getPropertyValue(prop)
+        },
+      } as CSSStyleDeclaration
+    })
+
+    renderWithRouter('2026-04-01')
+    const scrollContainer = await screen.findByTestId('week-scroll-container')
+    // 8 hours × 48px = 384
+    expect(scrollContainer.scrollTop).toBe(384)
   })
 })
