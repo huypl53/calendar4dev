@@ -1,9 +1,30 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dev Calendar</title>
+    <!-- Anti-flash: apply persisted theme/density/accent before first paint -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('dev-calendar-ui');
+          if (stored) {
+            var s = JSON.parse(stored);
+            var html = document.documentElement;
+            if (s.theme === 'light' || s.theme === 'dark') {
+              html.classList.remove('dark', 'light');
+              html.classList.add(s.theme);
+            }
+            if (s.density) html.dataset.density = s.density;
+            if (s.accentColor) html.style.setProperty('--color-accent', s.accentColor);
+          }
+        } catch (_) {}
+      })();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   </head>
   <body>
     <div id="root"></div>

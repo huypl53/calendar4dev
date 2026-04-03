@@ -6,6 +6,14 @@ export const envSchema = z.object({
   LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace']).default('info'),
   PORT: z.coerce.number().default(3000),
   API_PORT: z.coerce.number().default(3001),
-})
+  CORS_ORIGIN: z.string().default('*'),
+  BETTER_AUTH_SECRET: z.string().min(32),
+  BETTER_AUTH_URL: z.string().url(),
+  GITHUB_CLIENT_ID: z.string().optional(),
+  GITHUB_CLIENT_SECRET: z.string().optional(),
+}).refine(
+  (env) => (!env.GITHUB_CLIENT_ID && !env.GITHUB_CLIENT_SECRET) || (!!env.GITHUB_CLIENT_ID && !!env.GITHUB_CLIENT_SECRET),
+  { message: 'GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET must both be set or both be omitted', path: ['GITHUB_CLIENT_ID'] },
+)
 
 export type Env = z.infer<typeof envSchema>

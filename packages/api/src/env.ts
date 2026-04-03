@@ -9,9 +9,9 @@ function validateEnv(): Env {
   if (result.success) {
     return result.data
   }
-  console.error('Invalid environment variables:')
+  process.stderr.write('Invalid environment variables:\n')
   for (const issue of result.error.issues) {
-    console.error(`  ${issue.path.join('.')}: ${issue.message}`)
+    process.stderr.write(`  ${issue.path.join('.')}: ${issue.message}\n`)
   }
   return process.exit(1)
 }

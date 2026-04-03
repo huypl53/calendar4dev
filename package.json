@@ -10,7 +10,11 @@
     "test": "pnpm -r test",
     "test:e2e": "npx playwright test",
     "test:burn-in": "bash scripts/burn-in-changed.sh",
-    "typecheck": "pnpm -r typecheck"
+    "typecheck": "pnpm -r typecheck",
+    "db:generate": "pnpm --filter @dev-calendar/api exec drizzle-kit generate",
+    "db:migrate": "pnpm --filter @dev-calendar/api exec tsx src/db/migrate.ts",
+    "db:push": "pnpm --filter @dev-calendar/api exec drizzle-kit push",
+    "db:studio": "pnpm --filter @dev-calendar/api exec drizzle-kit studio"
   },
   "engines": {
     "node": ">=22"
