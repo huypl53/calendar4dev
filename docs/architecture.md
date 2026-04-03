@@ -67,6 +67,14 @@ Drizzle ORM with PostgreSQL (postgres.js driver). Uses `casing: 'snake_case'` in
 - **TanStack Router note**: `createFileRoute` requires file-based code generation tooling. For code-based routing, use `createRoute` with `getParentRoute` + manual route tree assembly in `route-tree.ts`
 - **Web tsconfig**: `declaration: false` / `declarationMap: false` required because better-auth's inferred types reference internal modules not portable for declaration emit (only affects library builds, not Vite apps)
 
+## Frontend Shell (Story 1-5)
+
+- **AppShell layout**: CSS Grid with `grid-template-rows: 48px 1fr 28px` and `grid-template-columns: ${sidebarOpen ? '240px' : '0px'} 1fr`. Header and StatusBar span full width via `col-span-full`. Sidebar occupies column 1, main content column 2
+- **Layout components**: `packages/web/src/layouts/` — `app-shell.tsx` (grid wrapper), `header.tsx` (48px, hamburger + title + view switcher), `sidebar.tsx` (240px, overflow-hidden when collapsed), `status-bar.tsx` (28px, time + sync status)
+- **Sidebar state**: `useUIStore.sidebarOpen` (default false) controls sidebar column width. Header hamburger calls `useUIStore.getState().toggleSidebar()`
+- **ErrorBoundary**: Class component at `packages/web/src/components/error-boundary.tsx` with `getDerivedStateFromError` + `componentDidCatch`. Fallback renders "Something went wrong" with "Return to today" link to `/week/{ISO date}`
+- **Testing setup**: `vitest.config.ts` with jsdom environment and `@testing-library/react` + `@testing-library/jest-dom`. Setup file at `src/test-setup.ts` imports `@testing-library/jest-dom/vitest` for matchers. Tests must call `cleanup()` in `afterEach` since automatic cleanup requires global config
+
 ## Key Decisions
 
 - **Tailwind CSS v4**: Uses CSS-first config with `@import "tailwindcss"` — no `tailwind.config.js` needed

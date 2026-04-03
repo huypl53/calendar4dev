@@ -1,6 +1,8 @@
 import { createRoute, Outlet, redirect } from '@tanstack/react-router'
 import { rootRoute } from './__root.js'
 import { authClient } from '../lib/auth-client.js'
+import { AppShell } from '../layouts/app-shell.js'
+import { ErrorBoundary } from '../components/error-boundary.js'
 
 export const authenticatedRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -16,5 +18,11 @@ export const authenticatedRoute = createRoute({
       throw redirect({ to: '/login' })
     }
   },
-  component: () => <Outlet />,
+  component: () => (
+    <AppShell>
+      <ErrorBoundary>
+        <Outlet />
+      </ErrorBoundary>
+    </AppShell>
+  ),
 })

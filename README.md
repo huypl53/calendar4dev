@@ -88,6 +88,26 @@ Authentication is handled by [Better Auth](https://better-auth.com) with email/p
 - **API protection**: All `/api/*` routes require a valid session cookie, except `/api/auth/*`, `/healthz`, `/api/openapi.json`, `/api/docs`
 - **GitHub OAuth**: Enable by setting `GITHUB_CLIENT_ID` and `GITHUB_CLIENT_SECRET` env vars. Omit to use email/password only.
 
+## Frontend
+
+The web application uses a CSS Grid-based app shell with:
+
+- **Header** (48px): Navigation, view switcher (Day/Week/Month/Schedule)
+- **Sidebar** (240px, collapsed by default): Mini calendar + calendar list placeholders
+- **Main area**: Calendar view content
+- **Status bar** (28px): Time, sync status
+
+**State management:**
+- **Zustand** for UI state (sidebar, theme, density)
+- **TanStack Query** for server state (events, calendars)
+
+**Routes** (all require authentication):
+- `/week/:date` — Week view (default)
+- `/day/:date` — Day view
+- `/month/:date` — Month view
+- `/schedule` — Schedule/agenda view
+- `/login` — Login page (public)
+
 ## API Endpoints
 
 | Endpoint | Description |
