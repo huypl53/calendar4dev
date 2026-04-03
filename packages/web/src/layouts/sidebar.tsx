@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { AppearanceSettings } from '../features/settings/index.js'
+import { MiniCalendar } from '../features/calendars/components/mini-calendar.js'
+import { CalendarList } from '../features/calendars/components/calendar-list.js'
 
 interface SidebarProps {
   embedded?: boolean
@@ -10,13 +12,9 @@ function SidebarContent() {
 
   return (
     <>
-      <div className="flex-1 overflow-auto p-4">
-        <div className="font-sans text-xs text-[var(--color-text-secondary)]">
-          Mini Calendar
-        </div>
-        <div className="mt-4 font-sans text-xs text-[var(--color-text-secondary)]">
-          Calendar List
-        </div>
+      <div className="flex-1 space-y-[var(--space-4)] overflow-auto p-[var(--space-3)]">
+        <MiniCalendar />
+        <CalendarList />
       </div>
 
       <div className="border-t border-[var(--color-border)] p-2">

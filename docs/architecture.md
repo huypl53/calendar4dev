@@ -134,6 +134,62 @@ Drizzle ORM with PostgreSQL (postgres.js driver). Uses `casing: 'snake_case'` in
 - **Gutter width token**: `--density-gutter-width` (compact: 60px, comfortable: 72px) used by all grid layouts instead of hardcoded `60px`.
 - **Route structure**: `/day/$date`, `/week/$date`, `/month/$date`, `/schedule`. All date routes have `beforeLoad` guard that redirects invalid dates to today. Views are lazy-loaded via `lazyRouteComponent`.
 
+## Event Management (Epic 4)
+
+- **API service layer**: `packages/api/src/services/events.ts` and `calendars.ts`. Ownership checks via `assertCalendarOwner`/`assertEventOwner` — events are always accessed through calendar ownership. `listEvents` uses `inArray` for multi-calendar filtering.
+- **API routes**: `packages/api/src/routes/events.ts` (POST/GET/PATCH/DELETE) and `calendars.ts` (GET/POST bootstrap). Uses plain `Hono<AppEnv>` (not OpenAPIHono) to avoid strict response typing issues with `Date` → ISO string serialization. Manual `safeParse` with Zod for validation.
+- **Calendar bootstrap**: `POST /api/calendars/bootstrap` creates a default "Personal" calendar if none exists. Idempotent — returns existing if already created.
+- **Frontend data layer**: `packages/web/src/lib/api-client.ts` — typed fetch wrapper with `ApiError` class, `credentials: 'include'` for session cookies. `calendarsApi` and `eventsApi` exports.
+- **React Query hooks**: `useEventsQuery({ calendarId?, startDate?, endDate? })` — disabled until date range provided. `useCreateEventMutation`/`useUpdateEventMutation`/`useDeleteEventMutation` with cache invalidation on `['events']`.
+- **Event rendering**: `EventBlock` component positioned absolutely within time-grid day columns. Position = `(startMinutes/1440) × 100%`, height = `(durationMinutes/1440) × 100%`. Minimum 15min visual height.
+- **TimeGrid events**: TimeGrid accepts `days[]` and `events[]` props. Events grouped by date into column overlays. `onCellClick(date, hour)` for creation, `onEventClick(event)` for editing.
+- **Event form dialog**: `EventFormDialog` handles both create and edit modes via optional `event` prop. Uses native `<dialog>`, form validation, toast notifications. Calendar selector shown when multiple calendars exist.
+- **Month view events**: `MonthGrid` shows up to 3 events per cell with "+N more" overflow indicator.
+- **Schedule view events**: Events listed under each day header with color dots and time ranges. Clickable for edit.
+- **Serialization pattern**: API routes use explicit `serializeEvent()` to convert Date fields to ISO strings — avoids `unknown` typing from spread on Drizzle select results.
+
+## Command Palette & Keyboard Navigation (Epic 5)
+
+- **Command palette**: `packages/web/src/features/command-palette/` — fuzzy-search command palette opened with Cmd/Ctrl+K. Lists all available actions with shortcut badges. Arrow keys navigate, Enter executes.
+- **Command registry**: `commands.ts` — `createCommands()` factory accepts navigation/store dependencies. Commands categorized as views, navigation, or actions.
+- **Fuzzy matching**: `fuzzyMatch(query, target)` — subsequence match, case-insensitive.
+- **Keyboard shortcuts**: `packages/web/src/hooks/use-keyboard-shortcuts.ts` — global keydown listener with input/dialog guard. Supports single-key shortcuts (d/w/m/s/t/c/j/k/?) and modified shortcuts (Cmd+K).
+- **Shortcut help**: `?` key opens a categorized shortcut reference dialog.
+- **Integration**: All wired in `AppShell` — palette state, shortcut map, and help dialog managed as component state.
+
+## Calendar Organization & Sidebar (Epic 6)
+
+- **Calendar list**: `packages/web/src/features/calendars/components/calendar-list.tsx` — fetches calendars via `useCalendarsQuery`, renders with color dots. Auto-bootstraps default calendar on first load.
+- **Mini calendar**: `packages/web/src/features/calendars/components/mini-calendar.tsx` — compact month grid in sidebar. Click a day to navigate to it in current view. Prev/next month arrows. Today highlighted with accent.
+- **Sidebar integration**: Sidebar replaced placeholder text with `MiniCalendar` and `CalendarList` components.
+
+## Status Bar (Epic 7)
+
+- **Status bar**: Shows current view label, keyboard shortcut hint (`?` shortcuts), and sync status.
+- **WebSocket sync**: Deferred to post-MVP.
+
+## Recurring Events (Epic 8)
+
+- **Recurrence options**: `packages/shared/src/utils/recurrence.ts` — `RECURRENCE_OPTIONS` with None, Daily, Weekly, Monthly presets.
+- **RRULE expansion**: `expandRecurrence(startTime, rule, rangeStart, rangeEnd)` — generates occurrence dates within a date range. Supports FREQ=DAILY, WEEKLY, MONTHLY.
+- **Event form**: Repeat selector added to `EventFormDialog`. Stores RRULE string in `recurrenceRule` field.
+- **Visual indicator**: Recurring events show ↻ prefix in EventBlock title.
+
+## Settings & Accessibility (Epic 9)
+
+- **Default view preference**: `defaultView` added to `useUIStore` (persisted). Options: day, week, month, schedule.
+- **Appearance settings**: Default view selector added alongside theme, density, and accent color controls.
+- **Focus-visible**: `:focus-visible` outline with accent color for keyboard users.
+- **Reduced motion**: `@media (prefers-reduced-motion: reduce)` disables animations/transitions.
+- **ARIA landmarks**: Semantic HTML5 elements (`<header>`, `<aside>`, `<main>`, `<footer>`, `<nav>`).
+
+## CLI Tool (Epic 10)
+
+- **Package**: `packages/cli/` — standalone Node.js CLI using native `fetch`. No external dependencies.
+- **Commands**: `devcal calendars list`, `devcal events list`, `devcal events create <title> <start> <end> <calendarId>`.
+- **Output**: `--json` flag for machine-readable output, default is ASCII table format.
+- **Auth**: `DEVCAL_API_URL` and `DEVCAL_AUTH_TOKEN` environment variables.
+
 ## Key Decisions
 
 - **Tailwind CSS v4**: Uses CSS-first config with `@import "tailwindcss"` — no `tailwind.config.js` needed

@@ -1,21 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
+import { eventsApi, type CalendarEvent } from '../../../lib/api-client.js'
 
-// TODO: Replace with shared Event type when full schema is defined
-interface Event {
-  id: string
-  title: string
-  startTime: string
-  endTime: string
-  calendarId: string
-}
+export type { CalendarEvent }
 
-export function useEventsQuery(calendarId?: string) {
+export function useEventsQuery(params: {
+  calendarId?: string
+  startDate?: string
+  endDate?: string
+}) {
   return useQuery({
-    queryKey: ['events', { calendarId }],
-    queryFn: async () => {
-      // TODO: Replace with actual API call when event routes exist
-      return [] as Event[]
-    },
-    enabled: !!calendarId,
+    queryKey: ['events', params],
+    queryFn: () => eventsApi.list(params),
+    enabled: !!(params.startDate && params.endDate),
   })
 }
