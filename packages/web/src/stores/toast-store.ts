@@ -10,17 +10,18 @@ export interface ToastItem {
 
 interface ToastState {
   toasts: ToastItem[]
+  _nextId: number
   addToast: (message: string, variant?: ToastVariant) => string
   removeToast: (id: string) => void
 }
 
-let nextId = 0
-
-export const useToastStore = create<ToastState>()((set) => ({
+export const useToastStore = create<ToastState>()((set, get) => ({
   toasts: [],
+  _nextId: 0,
   addToast: (message, variant = 'info') => {
-    const id = `toast-${++nextId}`
-    set((state) => ({ toasts: [...state.toasts, { id, message, variant }] }))
+    const nextId = get()._nextId + 1
+    const id = `toast-${nextId}`
+    set((state) => ({ toasts: [...state.toasts, { id, message, variant }], _nextId: nextId }))
     return id
   },
   removeToast: (id) =>

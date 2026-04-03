@@ -46,3 +46,11 @@
 - Auto-close sidebar when viewport transitions from mobile to desktop — UX polish for future story
 - "Today" button date goes stale after midnight if app stays open — add midnight boundary check
 - View switcher buttons need aria-current="page" for active state — Epic 9 accessibility
+
+## Deferred from: code review of 2-5-overlay-feedback-components (2026-04-03)
+
+- Toast setTimeout not cleaned up on component unmount — store is global so remove still works, but cleanup would be cleaner
+- Dialog doesn't restore focus to previously focused element on close — a11y improvement for Epic 9
+- DropdownMenu trigger is a span, needs role="button" + aria-haspopup="menu" + aria-expanded — a11y for Epic 9
+- DropdownMenu missing Home/End key handlers per ARIA menu pattern — a11y for Epic 9
+- Duplicate dropdown item labels cause React key warnings — add caller-supplied id field if needed

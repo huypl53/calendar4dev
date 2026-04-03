@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { useToastStore } from './toast-store.js'
 
 beforeEach(() => {
-  useToastStore.setState({ toasts: [] })
+  useToastStore.setState({ toasts: [], _nextId: 0 })
   vi.useFakeTimers()
 })
 

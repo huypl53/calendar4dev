@@ -21,7 +21,7 @@ export function ToastContainer() {
         <div
           key={toast.id}
           data-testid={`toast-${toast.id}`}
-          role="alert"
+          role={toast.variant === 'error' ? 'alert' : 'status'}
           className={`flex items-center gap-2 rounded border-l-4 px-4 py-3 shadow-lg text-[length:var(--font-size-small)] text-[var(--color-text-primary)] ${variantClasses[toast.variant]}`}
         >
           <span className="flex-1">{toast.message}</span>
@@ -29,6 +29,7 @@ export function ToastContainer() {
             type="button"
             data-testid={`toast-close-${toast.id}`}
             onClick={() => removeToast(toast.id)}
+            aria-label="Dismiss notification"
             className="text-[var(--color-text-tertiary)] hover:text-[var(--color-text-primary)]"
           >
             &times;

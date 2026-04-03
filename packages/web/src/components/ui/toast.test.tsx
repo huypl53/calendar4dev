@@ -4,7 +4,7 @@ import { ToastContainer } from './toast.js'
 import { useToastStore } from '../../stores/toast-store.js'
 
 beforeEach(() => {
-  useToastStore.setState({ toasts: [] })
+  useToastStore.setState({ toasts: [], _nextId: 0 })
 })
 
 afterEach(() => cleanup())
@@ -19,7 +19,7 @@ describe('ToastContainer', () => {
     useToastStore.getState().addToast('Success!', 'success')
     render(<ToastContainer />)
     expect(screen.getByText('Success!')).toBeInTheDocument()
-    const toast = screen.getByText('Success!').closest('[role="alert"]')
+    const toast = screen.getByText('Success!').closest('[role="status"]')
     expect(toast?.className).toContain('border-l-[var(--color-success)]')
   })
 
@@ -27,6 +27,7 @@ describe('ToastContainer', () => {
     useToastStore.getState().addToast('Error!', 'error')
     render(<ToastContainer />)
     const toast = screen.getByText('Error!').closest('[role="alert"]')
+    expect(toast).toBeInTheDocument()
     expect(toast?.className).toContain('border-l-[var(--color-danger)]')
   })
 

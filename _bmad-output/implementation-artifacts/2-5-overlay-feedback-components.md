@@ -1,6 +1,6 @@
 # Story 2.5: Overlay & Feedback Components
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
