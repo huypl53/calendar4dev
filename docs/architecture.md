@@ -120,6 +120,20 @@ Drizzle ORM with PostgreSQL (postgres.js driver). Uses `casing: 'snake_case'` in
 - **Toast system**: Zustand store at `packages/web/src/stores/toast-store.ts` with `addToast`/`removeToast` actions. `useToast` hook provides `toast(message, variant?, duration?)` function with auto-dismiss (5s default). `ToastContainer` renders fixed bottom-right stack. Variants: success (green border), error (danger border), info (accent border).
 - **Barrel export**: All overlay components exported from `packages/web/src/components/ui/index.ts`.
 
+## Calendar Grid & View Engine (Epic 3)
+
+- **View components**: `packages/web/src/features/views/components/` — WeekView, DayView, MonthView, ScheduleView. Barrel export from `packages/web/src/features/views/index.ts`.
+- **Shared time grid components**: TimeGutter (24 hour labels), TimeGrid (hour/half-hour grid cells with configurable column count), NowLine (current time indicator). TimeGrid accepts `dayCount` and optional `todayIndex` to render the now-line on today's column.
+- **Week view**: WeekHeader (7 day column headers + all-day section) + scrollable TimeGutter + TimeGrid(dayCount=7). Auto-scrolls to 8 AM on mount via `scrollTop` calculation using `--density-row-height` CSS variable.
+- **Day view**: DayHeader (single day name + date + month) + scrollable TimeGutter + TimeGrid(dayCount=1). Same auto-scroll pattern as week view.
+- **Month view**: MonthGrid (6-week × 7-day grid using `getMonthGridDates`). Out-of-month days dimmed via `isSameMonth`. Today highlighted with accent. Cell height uses `--density-mini-cal-cell` token.
+- **Schedule view**: 14-day agenda starting from today. Date-grouped sections with sticky headers. Today's header highlighted with accent. "No events" placeholder per day.
+- **Now-line**: `NowLine` component calculates position as percentage of 24 hours (minute/1440 × 100%). Updates every 60 seconds via minute-boundary scheduling. Rendered as absolute-positioned overlay within TimeGrid on today's column only.
+- **Date navigation**: Header has prev/next IconButtons. Navigation unit varies by view: ±1 day (day), ±7 days (week), ±1 month (month). Schedule view hides prev/next. `getDateLabel(view, date)` returns view-appropriate header label. `navigateDate(view, date, direction)` computes new date. Today button navigates to today in current view (not always week).
+- **Date utilities**: `packages/web/src/lib/date-utils.ts` — `getWeekDays` (Monday-start), `getMonthGridDates` (42 cells), `formatDayHeader`, `formatHour`, `addDays`, `addMonths` (with day clamping for month overflow), `isSameMonth`, `isToday`, `getDateLabel`, `navigateDate`.
+- **Gutter width token**: `--density-gutter-width` (compact: 60px, comfortable: 72px) used by all grid layouts instead of hardcoded `60px`.
+- **Route structure**: `/day/$date`, `/week/$date`, `/month/$date`, `/schedule`. All date routes have `beforeLoad` guard that redirects invalid dates to today. Views are lazy-loaded via `lazyRouteComponent`.
+
 ## Key Decisions
 
 - **Tailwind CSS v4**: Uses CSS-first config with `@import "tailwindcss"` — no `tailwind.config.js` needed

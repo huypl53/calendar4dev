@@ -92,9 +92,9 @@ Authentication is handled by [Better Auth](https://better-auth.com) with email/p
 
 The web application uses a CSS Grid-based app shell with:
 
-- **Header**: Navigation, view switcher (Day/Week/Month/Schedule)
+- **Header**: Navigation (prev/next/today), date label, view switcher (Day/Week/Month/Schedule)
 - **Sidebar** (collapsed by default): Mini calendar + calendar list placeholders
-- **Main area**: Calendar view content
+- **Main area**: Calendar view content (week grid, day grid, month grid, or schedule list)
 - **Status bar**: Time, sync status
 
 All layout dimensions (header height, sidebar width, status bar height) are driven by CSS custom property density tokens — see Design System below.
@@ -129,6 +129,14 @@ The app uses a CSS custom property-based design token system. All tokens are def
 - `Dialog` — native `<dialog>` with focus trap and backdrop
 - `DropdownMenu` — positioned menu with keyboard nav (arrow keys)
 - `ToastContainer` + `useToast` — transient notifications with auto-dismiss
+
+**Calendar Views:**
+- **Week view** (`/week/:date`): 7-day columns × 24-hour time grid, auto-scrolls to 8 AM
+- **Day view** (`/day/:date`): Single-day time grid with full date header
+- **Month view** (`/month/:date`): 6-week × 7-day calendar grid, out-of-month days dimmed
+- **Schedule view** (`/schedule`): 14-day agenda list with date-grouped sections
+- **Now line**: Red current-time indicator on day/week grids, updates every minute
+- **Navigation**: Prev/next arrows step by view-appropriate unit (day/week/month). Today button returns to current date.
 
 **Routes** (all require authentication):
 - `/week/:date` — Week view (default)

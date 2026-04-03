@@ -69,7 +69,13 @@ development_status:
   # Epic 3: Calendar Grid & View Engine
   # FRs: FR1-FR4, FR7-FR11, FR13-FR15
   # Users can view calendar in day, week, month, and schedule views with full navigation
-  epic-3: backlog
+  epic-3: done
+  3-1-week-view-time-grid: done
+  3-2-day-view: done
+  3-3-month-view: done
+  3-4-schedule-view: done
+  3-5-navigation-date-controls: done
+  3-6-now-line: done
   epic-3-retrospective: optional
 
   # Epic 4: Event Management

@@ -54,3 +54,12 @@
 - DropdownMenu trigger is a span, needs role="button" + aria-haspopup="menu" + aria-expanded — a11y for Epic 9
 - DropdownMenu missing Home/End key handlers per ARIA menu pattern — a11y for Epic 9
 - Duplicate dropdown item labels cause React key warnings — add caller-supplied id field if needed
+
+## Deferred from: code review of Epic 3 (Calendar Grid & View Engine) (2026-04-03)
+
+- WeekHeader hardcodes repeat(7, 1fr) instead of using days.length — works for week view but won't support workweek view
+- formatDayHeader uses toLocaleDateString which may vary across JS engines — use static day name array if locale consistency becomes an issue
+- Schedule view toLocaleDateString for date formatting may vary by engine — same locale concern
+- DayHeader date parsing uses manual split-and-construct pattern — extract shared date-formatting helper if more views need similar display
+- NowLine does not account for container scroll position in week/day view — visually fine since percentage-based, but verify in integration
+- h-7 w-7 badge sizes and min-h-[28px] all-day row height not tokenized — extract to density tokens for consistency
