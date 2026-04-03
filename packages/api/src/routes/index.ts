@@ -3,10 +3,12 @@ import healthApp from './health.js'
 import eventsApp from './events.js'
 import calendarsApp from './calendars.js'
 import calendarMembersApp from './calendar-members.js'
+import userApp from './user.js'
 
 export function mountRoutes(app: OpenAPIHono) {
   app.route('/', healthApp)
   app.route('/', eventsApp)
   app.route('/', calendarsApp)
   app.route('/', calendarMembersApp)
+  app.route('/', userApp)
 }

@@ -20,6 +20,13 @@ vi.mock('../lib/api-client.js', () => ({
   eventsApi: { list: vi.fn().mockResolvedValue([]) },
   calendarsApi: { list: vi.fn().mockResolvedValue([]) },
   sharedCalendarsApi: { list: vi.fn().mockResolvedValue([]) },
+  userApi: {
+    getProfile: vi.fn().mockResolvedValue({ id: 'u1', email: 'a@b.com', name: null, image: null, hasPassword: false }),
+  },
+}))
+
+vi.mock('../lib/auth-client.js', () => ({
+  signOut: vi.fn().mockResolvedValue(undefined),
 }))
 
 // jsdom doesn't implement HTMLDialogElement methods
