@@ -1,9 +1,32 @@
-import { useEffect, type ReactNode } from 'react'
+import { useState, useEffect, useMemo, useCallback, type ReactNode } from 'react'
+import { useNavigate, useRouterState } from '@tanstack/react-router'
 import { useUIStore } from '../stores/ui-store.js'
 import { useMediaQuery } from '../hooks/use-media-query.js'
+import { useKeyboardShortcuts } from '../hooks/use-keyboard-shortcuts.js'
+import { getTodayDate, navigateDate } from '../lib/date-utils.js'
+import { CommandPalette } from '../features/command-palette/command-palette.js'
+import { ShortcutHelpDialog } from '../features/command-palette/shortcut-help-dialog.js'
+import { createCommands } from '../features/command-palette/commands.js'
+import { EventFormDialog } from '../features/events/components/event-form-dialog.js'
 import { Header } from './header.js'
 import { Sidebar } from './sidebar.js'
 import { StatusBar } from './status-bar.js'
+
+type View = 'day' | 'week' | 'month' | 'schedule'
+
+function parseRoute(pathname: string): { view: View; date: string } {
+  const today = getTodayDate()
+  if (pathname.startsWith('/day/')) return { view: 'day', date: pathname.split('/')[2] ?? today }
+  if (pathname.startsWith('/month/')) return { view: 'month', date: pathname.split('/')[2] ?? today }
+  if (pathname.startsWith('/schedule')) return { view: 'schedule', date: today }
+  const date = pathname.startsWith('/week/') ? pathname.split('/')[2] ?? today : today
+  return { view: 'week', date }
+}
+
+function viewPath(view: View, date: string): string {
+  if (view === 'schedule') return '/schedule'
+  return `/${view}/${date}`
+}
 
 interface AppShellProps {
   children: ReactNode
@@ -15,7 +38,19 @@ export function AppShell({ children }: AppShellProps) {
   const theme = useUIStore((state) => state.theme)
   const density = useUIStore((state) => state.density)
   const accentColor = useUIStore((state) => state.accentColor)
+  const toggleTheme = useUIStore((state) => state.toggleTheme)
+  const toggleDensity = useUIStore((state) => state.toggleDensity)
+  const toggleSidebar = useUIStore((state) => state.toggleSidebar)
   const isMobile = useMediaQuery('(max-width: 767px)')
+
+  const navigate = useNavigate()
+  const pathname = useRouterState({ select: (s) => s.location.pathname })
+  const { view, date } = parseRoute(pathname)
+  const today = getTodayDate()
+
+  const [paletteOpen, setPaletteOpen] = useState(false)
+  const [helpOpen, setHelpOpen] = useState(false)
+  const [createEventOpen, setCreateEventOpen] = useState(false)
 
   useEffect(() => {
     const html = document.documentElement
@@ -24,6 +59,48 @@ export function AppShell({ children }: AppShellProps) {
     html.dataset.density = density
     html.style.setProperty('--color-accent', accentColor)
   }, [theme, density, accentColor])
+
+  const doNavigate = useCallback(
+    (path: string) => void navigate({ to: path }),
+    [navigate],
+  )
+
+  const commands = useMemo(
+    () =>
+      createCommands({
+        navigate: doNavigate,
+        today,
+        toggleTheme,
+        toggleDensity,
+        toggleSidebar,
+        openCreateEvent: () => setCreateEventOpen(true),
+      }),
+    [doNavigate, today, toggleTheme, toggleDensity, toggleSidebar],
+  )
+
+  const shortcuts = useMemo(
+    () => ({
+      'cmd+k': () => setPaletteOpen(true),
+      '?': () => setHelpOpen((prev) => !prev),
+      d: () => doNavigate(`/day/${today}`),
+      w: () => doNavigate(`/week/${today}`),
+      m: () => doNavigate(`/month/${today}`),
+      s: () => doNavigate('/schedule'),
+      t: () => doNavigate(viewPath(view, today)),
+      c: () => setCreateEventOpen(true),
+      j: () => {
+        const newDate = navigateDate(view, date, -1)
+        doNavigate(viewPath(view, newDate))
+      },
+      k: () => {
+        const newDate = navigateDate(view, date, 1)
+        doNavigate(viewPath(view, newDate))
+      },
+    }),
+    [doNavigate, today, view, date],
+  )
+
+  useKeyboardShortcuts(shortcuts)
 
   return (
     <div
@@ -61,6 +138,23 @@ export function AppShell({ children }: AppShellProps) {
         {children}
       </main>
       <StatusBar />
+
+      <CommandPalette
+        open={paletteOpen}
+        onClose={() => setPaletteOpen(false)}
+        commands={commands}
+      />
+
+      <ShortcutHelpDialog
+        open={helpOpen}
+        onClose={() => setHelpOpen(false)}
+        commands={commands}
+      />
+
+      <EventFormDialog
+        open={createEventOpen}
+        onClose={() => setCreateEventOpen(false)}
+      />
     </div>
   )
 }
