@@ -87,6 +87,13 @@ Drizzle ORM with PostgreSQL (postgres.js driver). Uses `casing: 'snake_case'` in
 - **Accent colors**: 24 preset accent colors in `packages/shared/src/constants/accent-colors.ts` with `{ name, hex, category }`. Default is Cobalt `#2f81f7`. Accent does NOT change per theme — stays the same in dark and light.
 - **Layout component color pattern**: Header, sidebar, status-bar use `--color-bg-secondary` for background (panel surfaces). Main content area uses `--color-bg-primary` (canvas). Borders use `--color-border`. Muted text uses `--color-text-secondary` or `--color-text-tertiary`.
 
+## Theme, Density & Accent Controls (Story 2-2)
+
+- **Zustand persist**: `useUIStore` uses `zustand/middleware` `persist` with localStorage key `'dev-calendar-ui'`. Only `theme`, `density`, and `accentColor` are persisted (not `sidebarOpen`). Preferences survive page reloads.
+- **Accent color runtime**: `accentColor` state in `useUIStore`, applied to `<html>` via `style.setProperty('--color-accent', accentColor)` in the `AppShell` `useEffect`. Supports ~24 presets from `ACCENT_COLOR_PRESETS` and custom hex input.
+- **Appearance settings**: `packages/web/src/features/settings/components/appearance-settings.tsx` — theme toggle (Dark/Light buttons), density toggle (Compact/Comfortable buttons), accent color grid (24 preset dots + custom hex input). Mounted inline in the sidebar via a collapsible "Settings" button.
+- **Store actions**: `setTheme`, `toggleTheme`, `toggleDensity`, `setAccentColor` — all fire synchronous Zustand updates that trigger the `AppShell` `useEffect` to apply changes to `<html>`.
+
 ## Key Decisions
 
 - **Tailwind CSS v4**: Uses CSS-first config with `@import "tailwindcss"` — no `tailwind.config.js` needed

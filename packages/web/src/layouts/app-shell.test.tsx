@@ -9,13 +9,14 @@ vi.mock('@tanstack/react-router', () => ({
 
 afterEach(() => {
   cleanup()
-  // Clean up html element attributes after each test
   document.documentElement.classList.remove('dark', 'light')
   delete document.documentElement.dataset.density
+  document.documentElement.style.removeProperty('--color-accent')
+  localStorage.clear()
 })
 
 beforeEach(() => {
-  useUIStore.setState({ sidebarOpen: false, theme: 'dark', density: 'compact' })
+  useUIStore.setState({ sidebarOpen: false, theme: 'dark', density: 'compact', accentColor: '#2f81f7' })
 })
 
 describe('AppShell', () => {
@@ -127,5 +128,15 @@ describe('AppShell', () => {
 
     expect(document.documentElement.classList.contains('light')).toBe(true)
     expect(document.documentElement.classList.contains('dark')).toBe(false)
+  })
+
+  it('applies accent color to html element style', () => {
+    render(
+      <AppShell>
+        <div>Page content</div>
+      </AppShell>,
+    )
+
+    expect(document.documentElement.style.getPropertyValue('--color-accent')).toBe('#2f81f7')
   })
 })

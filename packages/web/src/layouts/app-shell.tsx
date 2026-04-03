@@ -12,13 +12,15 @@ export function AppShell({ children }: AppShellProps) {
   const sidebarOpen = useUIStore((state) => state.sidebarOpen)
   const theme = useUIStore((state) => state.theme)
   const density = useUIStore((state) => state.density)
+  const accentColor = useUIStore((state) => state.accentColor)
 
   useEffect(() => {
     const html = document.documentElement
     html.classList.remove('dark', 'light')
     html.classList.add(theme)
     html.dataset.density = density
-  }, [theme, density])
+    html.style.setProperty('--color-accent', accentColor)
+  }, [theme, density, accentColor])
 
   return (
     <div
