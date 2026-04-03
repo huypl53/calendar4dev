@@ -89,9 +89,17 @@ export function DayView() {
     )
   }
 
+  const allDayEvents = events?.filter((e) => e.allDay) ?? []
+  const timedEvents = events?.filter((e) => !e.allDay)
+
   return (
     <div data-testid="day-view" className="flex h-full flex-col">
-      <DayHeader date={date} />
+      <DayHeader
+        date={date}
+        allDayEvents={allDayEvents}
+        calendarColorMap={calendarColorMap}
+        onEventClick={handleEventClick}
+      />
       <div
         ref={scrollRef}
         className="flex-1 overflow-auto"
@@ -108,7 +116,7 @@ export function DayView() {
               dayCount={1}
               todayIndex={showNowLine ? 0 : undefined}
               days={[date]}
-              events={events}
+              events={timedEvents}
               calendarColorMap={calendarColorMap}
               onCellClick={handleCellClick}
               onEventClick={handleEventClick}
