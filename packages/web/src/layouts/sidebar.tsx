@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import { AppearanceSettings } from '../features/settings/index.js'
 
-export function Sidebar() {
+interface SidebarProps {
+  embedded?: boolean
+}
+
+function SidebarContent() {
   const [showSettings, setShowSettings] = useState(false)
 
   return (
-    <aside
-      data-testid="sidebar"
-      className="flex flex-col overflow-hidden border-r border-[var(--color-border)] bg-[var(--color-bg-secondary)]"
-    >
+    <>
       <div className="flex-1 overflow-auto p-4">
         <div className="font-sans text-xs text-[var(--color-text-secondary)]">
           Mini Calendar
@@ -38,6 +39,21 @@ export function Sidebar() {
           </div>
         )}
       </div>
+    </>
+  )
+}
+
+export function Sidebar({ embedded = true }: SidebarProps) {
+  if (!embedded) {
+    return <SidebarContent />
+  }
+
+  return (
+    <aside
+      data-testid="sidebar"
+      className="flex flex-col overflow-hidden border-r border-[var(--color-border)] bg-[var(--color-bg-secondary)]"
+    >
+      <SidebarContent />
     </aside>
   )
 }

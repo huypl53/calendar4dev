@@ -104,6 +104,15 @@ Drizzle ORM with PostgreSQL (postgres.js driver). Uses `casing: 'snake_case'` in
 - **Token usage pattern**: All primitives use `var(--color-*)`, `var(--font-size-*)`, `var(--font-weight-*)` tokens via Tailwind arbitrary value syntax (e.g., `bg-[var(--color-accent)]`). No hardcoded colors.
 - **Refactored components**: Header hamburger uses `IconButton`, appearance settings uses `Button`.
 
+## Application Shell Polish & Responsive Layout (Story 2-4)
+
+- **Sidebar transition**: Grid column transition via `transition: grid-template-columns 200ms ease` on the shell grid for smooth sidebar open/close animation.
+- **Mobile responsive**: `useMediaQuery('(max-width: 767px)')` hook detects mobile. On mobile, sidebar renders as a fixed overlay (z-50) with backdrop (z-40, bg-black/50). Clicking backdrop closes sidebar. Grid column stays at 0px on mobile regardless of sidebar state.
+- **`useMediaQuery` hook**: `packages/web/src/hooks/use-media-query.ts` — wraps `window.matchMedia` with state sync via `addEventListener('change', ...)`.
+- **Header navigation**: "Today" button (ghost variant) navigates to current date in week view. View switcher (Day/Week/Month/Schedule) uses Button primitives with primary variant for active route. Active route detected via `useRouterState` from TanStack Router.
+- **Status bar clock**: Live time display via `setInterval` (60s), formatted with `toLocaleTimeString`. Cleanup on unmount.
+- **Sidebar refactor**: `SidebarContent` extracted as internal component. `Sidebar` accepts `embedded` prop — when false (mobile), renders content without `<aside>` wrapper (AppShell provides the mobile `<aside>`).
+
 ## Key Decisions
 
 - **Tailwind CSS v4**: Uses CSS-first config with `@import "tailwindcss"` — no `tailwind.config.js` needed

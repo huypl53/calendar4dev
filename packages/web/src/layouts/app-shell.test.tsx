@@ -1,11 +1,19 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, cleanup } from '@testing-library/react'
+import { render, screen, cleanup, fireEvent } from '@testing-library/react'
 import { AppShell } from './app-shell.js'
 import { useUIStore } from '../stores/ui-store.js'
 
 vi.mock('@tanstack/react-router', () => ({
   Link: ({ children, to, ...props }: Record<string, unknown>) => <a href={to as string} {...props}>{children as string}</a>,
+  useRouterState: () => '/week/2026-04-03',
 }))
+
+vi.mock('../hooks/use-media-query.js', () => ({
+  useMediaQuery: vi.fn(() => false),
+}))
+
+import { useMediaQuery } from '../hooks/use-media-query.js'
+const mockUseMediaQuery = vi.mocked(useMediaQuery)
 
 afterEach(() => {
   cleanup()
@@ -17,6 +25,7 @@ afterEach(() => {
 
 beforeEach(() => {
   useUIStore.setState({ sidebarOpen: false, theme: 'dark', density: 'compact', accentColor: '#2f81f7' })
+  mockUseMediaQuery.mockReturnValue(false)
 })
 
 describe('AppShell', () => {
@@ -118,7 +127,6 @@ describe('AppShell', () => {
 
     useUIStore.setState({ theme: 'light' })
 
-    // Re-render needed for useEffect to fire
     cleanup()
     render(
       <AppShell>
@@ -138,5 +146,68 @@ describe('AppShell', () => {
     )
 
     expect(document.documentElement.style.getPropertyValue('--color-accent')).toBe('#2f81f7')
+  })
+
+  it('has grid transition for sidebar animation', () => {
+    const { container } = render(
+      <AppShell>
+        <div>Page content</div>
+      </AppShell>,
+    )
+
+    const grid = container.firstElementChild as HTMLElement
+    expect(grid.style.transition).toBe('grid-template-columns 200ms ease')
+  })
+
+  describe('mobile responsive', () => {
+    beforeEach(() => {
+      mockUseMediaQuery.mockReturnValue(true)
+    })
+
+    it('renders sidebar as overlay on mobile when open', () => {
+      useUIStore.setState({ sidebarOpen: true })
+      render(
+        <AppShell>
+          <div>Page content</div>
+        </AppShell>,
+      )
+
+      expect(screen.getByTestId('sidebar-backdrop')).toBeInTheDocument()
+      expect(screen.getByTestId('sidebar')).toBeInTheDocument()
+    })
+
+    it('does not show backdrop when sidebar is closed on mobile', () => {
+      render(
+        <AppShell>
+          <div>Page content</div>
+        </AppShell>,
+      )
+
+      expect(screen.queryByTestId('sidebar-backdrop')).not.toBeInTheDocument()
+    })
+
+    it('clicking backdrop closes sidebar', () => {
+      useUIStore.setState({ sidebarOpen: true })
+      render(
+        <AppShell>
+          <div>Page content</div>
+        </AppShell>,
+      )
+
+      fireEvent.click(screen.getByTestId('sidebar-backdrop'))
+      expect(useUIStore.getState().sidebarOpen).toBe(false)
+    })
+
+    it('keeps grid column at 0px on mobile even when sidebar is open', () => {
+      useUIStore.setState({ sidebarOpen: true })
+      const { container } = render(
+        <AppShell>
+          <div>Page content</div>
+        </AppShell>,
+      )
+
+      const grid = container.firstElementChild as HTMLElement
+      expect(grid.style.gridTemplateColumns).toBe('0px 1fr')
+    })
   })
 })
