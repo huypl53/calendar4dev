@@ -7,6 +7,7 @@ import { ScheduleView } from './schedule-view.js'
 vi.mock('../../../lib/api-client.js', () => ({
   eventsApi: { list: vi.fn().mockResolvedValue([]) },
   calendarsApi: { list: vi.fn().mockResolvedValue([]) },
+  sharedCalendarsApi: { list: vi.fn().mockResolvedValue([]) },
 }))
 
 afterEach(() => cleanup())

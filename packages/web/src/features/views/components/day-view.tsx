@@ -3,6 +3,7 @@ import { useParams } from '@tanstack/react-router'
 import { isToday } from '../../../lib/date-utils.js'
 import { useEventsQuery } from '../../events/hooks/use-events-query.js'
 import { useCalendarsQuery } from '../../calendars/hooks/use-calendars-query.js'
+import { useSharedCalendarsQuery } from '../../calendars/hooks/use-shared-calendars-query.js'
 import { EventFormDialog } from '../../events/components/event-form-dialog.js'
 import { DayHeader } from './day-header.js'
 import { TimeGutter } from './time-gutter.js'
@@ -19,10 +20,16 @@ export function DayView() {
     endDate: date,
   })
   const { data: calendars } = useCalendarsQuery()
+  const { data: sharedCalendars } = useSharedCalendarsQuery()
 
   const calendarColorMap: Record<string, string> = {}
   for (const cal of calendars ?? []) {
     calendarColorMap[cal.id] = cal.color
+  }
+
+  const sharedPermissions: Record<string, string> = {}
+  for (const cal of sharedCalendars ?? []) {
+    sharedPermissions[cal.id] = cal.permissionLevel
   }
 
   const [createDialog, setCreateDialog] = useState<{ open: boolean; start: string; end: string }>({
@@ -96,6 +103,7 @@ export function DayView() {
         open={!!editEvent}
         onClose={() => setEditEvent(undefined)}
         event={editEvent}
+        isReadOnly={!!editEvent && sharedPermissions[editEvent.calendarId] === 'details'}
       />
     </div>
   )
