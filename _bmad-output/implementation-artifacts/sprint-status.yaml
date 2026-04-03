@@ -1,5 +1,5 @@
 # generated: 2026-04-01
-# last_updated: 2026-04-03T12:00:00
+# last_updated: 2026-04-03T15:00:00T12:00:00
 # project: calendar
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-04-01
-last_updated: 2026-04-03
+last_updated: 2026-04-03T15:00:00
 project: calendar
 project_key: NOKEY
 tracking_system: file-system
@@ -161,27 +161,33 @@ development_status:
 
   # Epic 14: Search, Context Menus & Advanced Views
   # FRs: FR5, FR6, FR81-FR83, FR91, FR93, FR95
-  epic-14: backlog
+  epic-14: done
+  14-1-event-full-text-search: done
   epic-14-retrospective: optional
 
   # Epic 15: Import, Export & External Calendars
   # FRs: FR49-FR51, FR54
-  epic-15: backlog
+  epic-15: done
+  15-1-ics-export: done
+  15-2-ics-import: done
   epic-15-retrospective: optional
 
   # === Phase 3 (Platform) ===
 
   # Epic 16: Specialized Event Types
   # FRs: FR27-FR31
-  epic-16: backlog
+  epic-16: done
+  16-1-all-day-events: done
   epic-16-retrospective: optional
 
   # Epic 17: Platform Interop & Community
   # FRs: FR56, FR57, FR92, FR94
-  epic-17: backlog
+  epic-17: done
+  17-1-ical-feed: done
   epic-17-retrospective: optional
 
   # Epic 18: Offline Mode & Data Resilience
   # FRs: FR113-FR115
-  epic-18: backlog
+  epic-18: done
+  18-1-offline-mode: done
   epic-18-retrospective: optional
