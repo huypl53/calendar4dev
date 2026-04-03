@@ -7,10 +7,8 @@ export function ScheduleView() {
   return (
     <div data-testid="schedule-view" className="flex h-full flex-col overflow-auto">
       {days.map((date) => {
-        const d = new Date(
-          ...date.split('-').map(Number) as [number, number, number],
-        )
-        const dateObj = new Date(d.getFullYear(), d.getMonth() - 1, d.getDate())
+        const [y, m, day] = date.split('-').map(Number) as [number, number, number]
+        const dateObj = new Date(y, m - 1, day)
         const dayLabel = dateObj.toLocaleDateString('en-US', {
           weekday: 'long',
           month: 'long',

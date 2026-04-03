@@ -7,11 +7,8 @@ interface DayHeaderProps {
 export function DayHeader({ date }: DayHeaderProps) {
   const { dayName, dayNumber } = formatDayHeader(date)
   const today = isToday(date)
-  const d = new Date(
-    ...date.split('-').map(Number) as [number, number, number],
-  )
-  // Adjust: Date constructor takes 0-indexed month
-  const dateObj = new Date(d.getFullYear(), d.getMonth() - 1, d.getDate())
+  const [year, month, day] = date.split('-').map(Number) as [number, number, number]
+  const dateObj = new Date(year, month - 1, day)
   const monthName = dateObj.toLocaleDateString('en-US', { month: 'long' })
 
   return (
