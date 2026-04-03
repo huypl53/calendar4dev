@@ -63,7 +63,7 @@ development_status:
   2-2-theme-density-accent-color-controls: done
   2-3-core-ui-primitives: done
   2-4-application-shell-polish-responsive-layout: done
-  2-5-overlay-feedback-components: backlog
+  2-5-overlay-feedback-components: review
   epic-2-retrospective: optional
 
   # Epic 3: Calendar Grid & View Engine

@@ -113,6 +113,13 @@ Drizzle ORM with PostgreSQL (postgres.js driver). Uses `casing: 'snake_case'` in
 - **Status bar clock**: Live time display via `setInterval` (60s), formatted with `toLocaleTimeString`. Cleanup on unmount.
 - **Sidebar refactor**: `SidebarContent` extracted as internal component. `Sidebar` accepts `embedded` prop — when false (mobile), renders content without `<aside>` wrapper (AppShell provides the mobile `<aside>`).
 
+## Overlay & Feedback Components (Story 2-5)
+
+- **Dialog**: `packages/web/src/components/ui/dialog.tsx` — Uses native `<dialog>` element for built-in focus trap and Escape handling. `showModal()`/`close()` called via `useEffect` on `open` prop. Backdrop click detection via `e.target === dialog` with `stopPropagation` on content. Styled with `::backdrop` pseudo-element.
+- **DropdownMenu**: `packages/web/src/components/ui/dropdown-menu.tsx` — Positioned absolutely below trigger. Closes on outside click (document `mousedown` listener) and Escape key. Arrow key navigation with focusable `[data-menu-item]` buttons. Items accept `{ label, onClick, icon? }`.
+- **Toast system**: Zustand store at `packages/web/src/stores/toast-store.ts` with `addToast`/`removeToast` actions. `useToast` hook provides `toast(message, variant?, duration?)` function with auto-dismiss (5s default). `ToastContainer` renders fixed bottom-right stack. Variants: success (green border), error (danger border), info (accent border).
+- **Barrel export**: All overlay components exported from `packages/web/src/components/ui/index.ts`.
+
 ## Key Decisions
 
 - **Tailwind CSS v4**: Uses CSS-first config with `@import "tailwindcss"` — no `tailwind.config.js` needed
