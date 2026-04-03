@@ -9,11 +9,13 @@ vi.mock('@tanstack/react-router', () => ({
 
 afterEach(() => {
   cleanup()
+  // Clean up html element attributes after each test
+  document.documentElement.classList.remove('dark', 'light')
+  delete document.documentElement.dataset.density
 })
 
 beforeEach(() => {
-  // Reset store to defaults before each test
-  useUIStore.setState({ sidebarOpen: false })
+  useUIStore.setState({ sidebarOpen: false, theme: 'dark', density: 'compact' })
 })
 
 describe('AppShell', () => {
@@ -50,7 +52,7 @@ describe('AppShell', () => {
     expect(grid.style.gridTemplateColumns).toBe('0px 1fr')
   })
 
-  it('expands sidebar column to 240px when sidebarOpen is true', () => {
+  it('expands sidebar column using density token when sidebarOpen is true', () => {
     useUIStore.setState({ sidebarOpen: true })
 
     const { container } = render(
@@ -60,7 +62,18 @@ describe('AppShell', () => {
     )
 
     const grid = container.firstElementChild as HTMLElement
-    expect(grid.style.gridTemplateColumns).toBe('240px 1fr')
+    expect(grid.style.gridTemplateColumns).toBe('var(--density-sidebar-width) 1fr')
+  })
+
+  it('uses density tokens for grid template rows', () => {
+    const { container } = render(
+      <AppShell>
+        <div>Page content</div>
+      </AppShell>,
+    )
+
+    const grid = container.firstElementChild as HTMLElement
+    expect(grid.style.gridTemplateRows).toBe('var(--density-header-height) 1fr var(--density-status-bar-height)')
   })
 
   it('renders sidebar element', () => {
@@ -71,5 +84,48 @@ describe('AppShell', () => {
     )
 
     expect(screen.getByTestId('sidebar')).toBeInTheDocument()
+  })
+
+  it('applies theme class to html element', () => {
+    render(
+      <AppShell>
+        <div>Page content</div>
+      </AppShell>,
+    )
+
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
+  })
+
+  it('applies density attribute to html element', () => {
+    render(
+      <AppShell>
+        <div>Page content</div>
+      </AppShell>,
+    )
+
+    expect(document.documentElement.dataset.density).toBe('compact')
+  })
+
+  it('switches theme class on html when theme changes', () => {
+    render(
+      <AppShell>
+        <div>Page content</div>
+      </AppShell>,
+    )
+
+    expect(document.documentElement.classList.contains('dark')).toBe(true)
+
+    useUIStore.setState({ theme: 'light' })
+
+    // Re-render needed for useEffect to fire
+    cleanup()
+    render(
+      <AppShell>
+        <div>Page content</div>
+      </AppShell>,
+    )
+
+    expect(document.documentElement.classList.contains('light')).toBe(true)
+    expect(document.documentElement.classList.contains('dark')).toBe(false)
   })
 })

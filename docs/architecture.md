@@ -75,6 +75,18 @@ Drizzle ORM with PostgreSQL (postgres.js driver). Uses `casing: 'snake_case'` in
 - **ErrorBoundary**: Class component at `packages/web/src/components/error-boundary.tsx` with `getDerivedStateFromError` + `componentDidCatch`. Fallback renders "Something went wrong" with "Return to today" link to `/week/{ISO date}`
 - **Testing setup**: `vitest.config.ts` with jsdom environment and `@testing-library/react` + `@testing-library/jest-dom`. Setup file at `src/test-setup.ts` imports `@testing-library/jest-dom/vitest` for matchers. Tests must call `cleanup()` in `afterEach` since automatic cleanup requires global config
 
+## Design Token System (Story 2-1)
+
+- **Token architecture**: All design tokens are CSS custom properties in `packages/web/src/styles/globals.css` (root definitions) and `theme.css` (theme/density overrides). No JS token objects — pure CSS variable swap.
+- **Color tokens**: 12 semantic tokens (`--color-bg-primary`, `--color-bg-secondary`, `--color-bg-tertiary`, `--color-text-primary`, `--color-text-secondary`, `--color-text-tertiary`, `--color-border`, `--color-accent`, `--color-success`, `--color-warning`, `--color-danger`, `--color-now-line`) with dark/light theme values
+- **Theme switching**: `.dark` / `.light` class on `<html>` element, applied via `useEffect` in `AppShell`. Dark theme is default. `index.html` has `class="dark"` as initial value.
+- **Density switching**: `data-density="compact|comfortable"` attribute on `<html>` element. Compact is default. CSS selector `[data-density="comfortable"]` overrides dimension and typography tokens.
+- **Typography**: Dual-font system — Inter for UI, JetBrains Mono for temporal data. Loaded via Google Fonts CDN. 5-level type scale (display/heading/body/small/tiny) with individual `--font-size-*` and `--line-height-*` tokens. Comfortable density adds +2px to all sizes, +0.1 to all line heights.
+- **Spacing**: 4px-based scale from `--space-1` (4px) to `--space-8` (32px)
+- **Density tokens**: `--density-row-height`, `--density-event-padding`, `--density-sidebar-width`, `--density-header-height`, `--density-status-bar-height`, `--density-mini-cal-cell`, `--density-base-font-size`. Layout components reference these instead of hardcoded pixel values.
+- **Accent colors**: 24 preset accent colors in `packages/shared/src/constants/accent-colors.ts` with `{ name, hex, category }`. Default is Cobalt `#2f81f7`. Accent does NOT change per theme — stays the same in dark and light.
+- **Layout component color pattern**: Header, sidebar, status-bar use `--color-bg-secondary` for background (panel surfaces). Main content area uses `--color-bg-primary` (canvas). Borders use `--color-border`. Muted text uses `--color-text-secondary` or `--color-text-tertiary`.
+
 ## Key Decisions
 
 - **Tailwind CSS v4**: Uses CSS-first config with `@import "tailwindcss"` — no `tailwind.config.js` needed

@@ -92,14 +92,30 @@ Authentication is handled by [Better Auth](https://better-auth.com) with email/p
 
 The web application uses a CSS Grid-based app shell with:
 
-- **Header** (48px): Navigation, view switcher (Day/Week/Month/Schedule)
-- **Sidebar** (240px, collapsed by default): Mini calendar + calendar list placeholders
+- **Header**: Navigation, view switcher (Day/Week/Month/Schedule)
+- **Sidebar** (collapsed by default): Mini calendar + calendar list placeholders
 - **Main area**: Calendar view content
-- **Status bar** (28px): Time, sync status
+- **Status bar**: Time, sync status
+
+All layout dimensions (header height, sidebar width, status bar height) are driven by CSS custom property density tokens — see Design System below.
 
 **State management:**
 - **Zustand** for UI state (sidebar, theme, density)
 - **TanStack Query** for server state (events, calendars)
+
+## Design System
+
+The app uses a CSS custom property-based design token system. All tokens are defined in `packages/web/src/styles/globals.css` and `theme.css`.
+
+**Theming:** Dark/light themes via `.dark`/`.light` class on `<html>`. 12 semantic color tokens switch values per theme.
+
+**Typography:** Dual-font system — Inter (UI) and JetBrains Mono (temporal data). 5-level type scale: display, heading, body, small, tiny.
+
+**Spacing:** 4px-based scale (`--space-1` through `--space-8`).
+
+**Density:** Compact (default) and comfortable modes via `data-density` attribute. Controls row heights, padding, sidebar width, header/status-bar heights, and font sizes.
+
+**Accent colors:** 24 preset accent colors available. Default: Cobalt blue (`#2f81f7`). Accent stays the same in both dark and light themes.
 
 **Routes** (all require authentication):
 - `/week/:date` — Week view (default)
