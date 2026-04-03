@@ -12,3 +12,7 @@ dist/
 test-results/
 playwright-report/
 playwright/.auth/
+.worktrees/fix-review-patches
+.worktrees/11-1-sharing-api
+.worktrees/11-2-sharing-frontend
+.worktrees/fix-deferred-items
