@@ -34,7 +34,7 @@ export const ACCENT_COLOR_PRESETS: readonly AccentColorPreset[] = [
   { name: 'Electric', hex: '#1f6feb', category: 'vibrant' },
   { name: 'Neon Green', hex: '#39d353', category: 'vibrant' },
   { name: 'Hot Pink', hex: '#db61a2', category: 'vibrant' },
-  { name: 'Gold', hex: '#e3b341', category: 'vibrant' },
+  { name: 'Gold', hex: '#f0c000', category: 'vibrant' },
 ] as const
 
 export const DEFAULT_ACCENT_COLOR = '#2f81f7' // Cobalt

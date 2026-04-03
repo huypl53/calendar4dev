@@ -1,6 +1,7 @@
 /* === Theme Switching === */
 
 .dark {
+  color-scheme: dark;
   --color-bg-primary: #0d1117;
   --color-bg-secondary: #161b22;
   --color-bg-tertiary: #21262d;
@@ -15,6 +16,7 @@
 }
 
 .light {
+  color-scheme: light;
   --color-bg-primary: #ffffff;
   --color-bg-secondary: #f6f8fa;
   --color-bg-tertiary: #eaeef2;
