@@ -5,7 +5,7 @@ export const scheduleRoute = createRoute({
   getParentRoute: () => authenticatedRoute,
   path: '/schedule',
   component: lazyRouteComponent(
-    () => import('../../features/views/index.js'),
+    () => import('../../features/views/components/schedule-view.js'),
     'ScheduleView',
   ),
 })

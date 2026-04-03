@@ -27,11 +27,12 @@ describe('authenticated index route redirect', () => {
     try {
       opts.beforeLoad!()
       expect.fail('Expected redirect to be thrown')
-    } catch (err: any) {
-      // TanStack Router's redirect() returns a Response with an options property
-      expect(err.options).toMatchObject({
-        to: '/week/$date',
-        params: { date: '2026-04-03' },
+    } catch (err: unknown) {
+      expect(err).toMatchObject({
+        options: {
+          to: '/week/$date',
+          params: { date: '2026-04-03' },
+        },
       })
     }
   })
@@ -40,7 +41,7 @@ describe('authenticated index route redirect', () => {
     vi.setSystemTime(new Date('2025-01-15'))
 
     vi.resetModules()
-    vi.mock('../../lib/auth-client.js', () => ({
+    vi.doMock('../../lib/auth-client.js', () => ({
       authClient: {
         getSession: vi.fn().mockResolvedValue({ data: { user: { id: '1' } } }),
       },
@@ -52,10 +53,12 @@ describe('authenticated index route redirect', () => {
     try {
       opts.beforeLoad!()
       expect.fail('Expected redirect to be thrown')
-    } catch (err: any) {
-      expect(err.options).toMatchObject({
-        to: '/week/$date',
-        params: { date: '2025-01-15' },
+    } catch (err: unknown) {
+      expect(err).toMatchObject({
+        options: {
+          to: '/week/$date',
+          params: { date: '2025-01-15' },
+        },
       })
     }
   })

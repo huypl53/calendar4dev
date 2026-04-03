@@ -1,5 +1,6 @@
 import { Component } from 'react'
 import type { ErrorInfo, ReactNode } from 'react'
+import { getTodayDate } from '../lib/date-utils.js'
 
 interface ErrorBoundaryProps {
   children: ReactNode
@@ -7,10 +8,6 @@ interface ErrorBoundaryProps {
 
 interface ErrorBoundaryState {
   hasError: boolean
-}
-
-function getTodayISO(): string {
-  return new Date().toISOString().slice(0, 10)
 }
 
 export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
@@ -36,7 +33,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               Something went wrong
             </h1>
             <a
-              href={`/week/${getTodayISO()}`}
+              href={`/week/${getTodayDate()}`}
               className="font-sans text-sm text-[var(--color-accent)] underline hover:text-[var(--color-accent)]/80"
             >
               Return to today

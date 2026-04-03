@@ -10,10 +10,13 @@ interface AppShellProps {
 
 export function AppShell({ children }: AppShellProps) {
   const sidebarOpen = useUIStore((state) => state.sidebarOpen)
+  const theme = useUIStore((state) => state.theme)
+  const density = useUIStore((state) => state.density)
 
   return (
     <div
-      className="grid h-screen"
+      className={`grid h-screen ${theme}`}
+      data-density={density}
       style={{
         gridTemplateRows: '48px 1fr 28px',
         gridTemplateColumns: `${sidebarOpen ? '240px' : '0px'} 1fr`,
