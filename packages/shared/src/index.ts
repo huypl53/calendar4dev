@@ -12,7 +12,7 @@ export type { User } from './types/user.js'
 export { EventType, EventStatus, EventVisibility, ExceptionType, EVENT_TYPE_VALUES, EVENT_STATUS_VALUES, EVENT_VISIBILITY_VALUES, EXCEPTION_TYPE_VALUES } from './types/event.js'
 export { CalendarPermission, CALENDAR_PERMISSION_VALUES } from './types/calendar.js'
 
-export { expandRecurrence, RECURRENCE_OPTIONS } from './utils/recurrence.js'
+export { expandRecurrence, RECURRENCE_OPTIONS, REMINDER_OPTIONS } from './utils/recurrence.js'
 export { DEFAULT_EVENT_DURATION } from './constants/defaults.js'
 export { CALENDAR_COLORS } from './constants/colors.js'
 export type { CalendarColor } from './constants/colors.js'

@@ -14,6 +14,7 @@ export const createEventSchema = z.object({
   visibility: z.enum(EVENT_VISIBILITY_VALUES).optional(),
   eventType: z.enum(EVENT_TYPE_VALUES).optional(),
   recurrenceRule: z.string().nullable().optional(),
+  reminderMinutes: z.number().int().min(0).max(10080).nullable().optional(),
 }).refine(
   (d) => new Date(d.endTime) > new Date(d.startTime),
   { message: 'endTime must be after startTime', path: ['endTime'] },
@@ -33,6 +34,7 @@ export const updateEventSchema = z.object({
   visibility: z.enum(EVENT_VISIBILITY_VALUES).optional(),
   eventType: z.enum(EVENT_TYPE_VALUES).optional(),
   recurrenceRule: z.string().nullable().optional(),
+  reminderMinutes: z.number().int().min(0).max(10080).nullable().optional(),
 })
 
 export type UpdateEvent = z.infer<typeof updateEventSchema>

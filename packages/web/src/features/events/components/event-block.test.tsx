@@ -19,6 +19,7 @@ const baseEvent: CalendarEvent = {
   visibility: 'default',
   eventType: 'default',
   recurrenceRule: null,
+  reminderMinutes: null,
   createdAt: '2026-04-01T00:00:00.000Z',
   updatedAt: '2026-04-01T00:00:00.000Z',
 }

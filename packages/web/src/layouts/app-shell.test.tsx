@@ -29,6 +29,11 @@ vi.mock('../lib/auth-client.js', () => ({
   signOut: vi.fn().mockResolvedValue(undefined),
 }))
 
+vi.mock('../lib/notification-service.js', () => ({
+  requestNotificationPermission: vi.fn().mockResolvedValue('granted'),
+  checkReminders: vi.fn(),
+}))
+
 // jsdom doesn't implement HTMLDialogElement methods
 HTMLDialogElement.prototype.showModal = vi.fn()
 HTMLDialogElement.prototype.close = vi.fn()

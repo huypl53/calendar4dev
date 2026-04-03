@@ -20,6 +20,7 @@ function serializeEvent(event: Record<string, unknown>) {
     visibility: event.visibility,
     eventType: event.eventType,
     recurrenceRule: event.recurrenceRule ?? null,
+    reminderMinutes: event.reminderMinutes ?? null,
     createdAt: event.createdAt instanceof Date ? event.createdAt.toISOString() : String(event.createdAt),
     updatedAt: event.updatedAt instanceof Date ? event.updatedAt.toISOString() : String(event.updatedAt),
   }

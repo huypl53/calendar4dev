@@ -51,3 +51,14 @@ export const RECURRENCE_OPTIONS = [
   { value: 'RRULE:FREQ=WEEKLY', label: 'Weekly' },
   { value: 'RRULE:FREQ=MONTHLY', label: 'Monthly' },
 ] as const
+
+export const REMINDER_OPTIONS = [
+  { value: null, label: 'No reminder' },
+  { value: 0, label: 'At time of event' },
+  { value: 5, label: '5 minutes before' },
+  { value: 10, label: '10 minutes before' },
+  { value: 15, label: '15 minutes before' },
+  { value: 30, label: '30 minutes before' },
+  { value: 60, label: '1 hour before' },
+  { value: 120, label: '2 hours before' },
+] as const

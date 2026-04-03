@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo, useCallback, type ReactNode } from 'react'
+import { useState, useEffect, useMemo, useCallback, useRef, type ReactNode } from 'react'
 import { useNavigate, useRouterState } from '@tanstack/react-router'
 import { useUIStore } from '../stores/ui-store.js'
 import { useMediaQuery } from '../hooks/use-media-query.js'
 import { useKeyboardShortcuts } from '../hooks/use-keyboard-shortcuts.js'
 import { getTodayDate, navigateDate } from '../lib/date-utils.js'
+import { useEventsQuery } from '../features/events/hooks/use-events-query.js'
 import { CommandPalette } from '../features/command-palette/command-palette.js'
 import { ShortcutHelpDialog } from '../features/command-palette/shortcut-help-dialog.js'
 import { createCommands } from '../features/command-palette/commands.js'
@@ -11,6 +12,8 @@ import { EventFormDialog } from '../features/events/components/event-form-dialog
 import { Header } from './header.js'
 import { Sidebar } from './sidebar.js'
 import { StatusBar } from './status-bar.js'
+import { useToast } from '../stores/toast-store.js'
+import { requestNotificationPermission, checkReminders } from '../lib/notification-service.js'
 
 type View = 'day' | 'week' | 'month' | 'schedule'
 
@@ -51,6 +54,26 @@ export function AppShell({ children }: AppShellProps) {
   const [paletteOpen, setPaletteOpen] = useState(false)
   const [helpOpen, setHelpOpen] = useState(false)
   const [createEventOpen, setCreateEventOpen] = useState(false)
+
+  const { toast } = useToast()
+
+  // Fetch upcoming events for reminder polling (next 2 hours)
+  const notifStart = today
+  const notifEnd = today
+  const { data: upcomingEvents } = useEventsQuery({ startDate: notifStart, endDate: notifEnd })
+  const upcomingEventsRef = useRef(upcomingEvents)
+  upcomingEventsRef.current = upcomingEvents
+
+  // Request notification permission on mount and start reminder polling
+  useEffect(() => {
+    void requestNotificationPermission()
+    const interval = setInterval(() => {
+      if (upcomingEventsRef.current) {
+        checkReminders(upcomingEventsRef.current, (msg) => toast(msg, 'info'))
+      }
+    }, 60_000)
+    return () => clearInterval(interval)
+  }, [])
 
   useEffect(() => {
     const html = document.documentElement

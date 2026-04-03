@@ -1,4 +1,4 @@
-import { pgTable, pgEnum, varchar, text, boolean, timestamp, jsonb, index, uniqueIndex, customType } from 'drizzle-orm/pg-core'
+import { pgTable, pgEnum, varchar, text, boolean, timestamp, jsonb, integer, index, uniqueIndex, customType } from 'drizzle-orm/pg-core'
 import { sql, type SQL } from 'drizzle-orm'
 import { createId } from '@paralleldrive/cuid2'
 import { EVENT_TYPE_VALUES, EVENT_STATUS_VALUES, EVENT_VISIBILITY_VALUES, EXCEPTION_TYPE_VALUES } from '@dev-calendar/shared'
@@ -32,6 +32,7 @@ export const events = pgTable('events', {
   visibility: eventVisibilityEnum().notNull().default('public'),
   eventType: eventTypeEnum().notNull().default('standard'),
   recurrenceRule: text(),
+  reminderMinutes: integer(),
   searchVector: tsvector('search_vector').generatedAlwaysAs((): SQL =>
     sql`setweight(to_tsvector('english', coalesce(${events.title}, '')), 'A') || setweight(to_tsvector('english', coalesce(${events.description}, '')), 'B') || setweight(to_tsvector('english', coalesce(${events.location}, '')), 'C')`
   ),

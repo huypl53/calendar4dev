@@ -6,7 +6,7 @@ import { useCreateEventMutation } from '../hooks/use-event-mutations.js'
 import { useUpdateEventMutation, useDeleteEventMutation } from '../hooks/use-event-mutations.js'
 import { useToast } from '../../../stores/toast-store.js'
 import type { CalendarEvent } from '../../../lib/api-client.js'
-import { RECURRENCE_OPTIONS } from '@dev-calendar/shared'
+import { RECURRENCE_OPTIONS, REMINDER_OPTIONS } from '@dev-calendar/shared'
 
 export interface EventFormDialogProps {
   open: boolean
@@ -40,6 +40,7 @@ export function EventFormDialog({
   const [endTime, setEndTime] = useState('')
   const [calendarId, setCalendarId] = useState('')
   const [recurrence, setRecurrence] = useState('')
+  const [reminderMinutes, setReminderMinutes] = useState<number | null>(null)
 
   const isEdit = !!event
   const initializedRef = useRef(false)
@@ -60,6 +61,7 @@ export function EventFormDialog({
       setEndTime(toDatetimeLocal(event.endTime))
       setCalendarId(event.calendarId)
       setRecurrence(event.recurrenceRule ?? '')
+      setReminderMinutes(event.reminderMinutes ?? null)
     } else {
       setTitle('')
       setDescription('')
@@ -67,6 +69,7 @@ export function EventFormDialog({
       setEndTime(defaultEnd ?? '')
       setCalendarId(calendars?.[0]?.id ?? '')
       setRecurrence('')
+      setReminderMinutes(null)
     }
   }, [open, event, defaultStart, defaultEnd])
 
@@ -95,6 +98,7 @@ export function EventFormDialog({
             startTime: new Date(startTime).toISOString(),
             endTime: new Date(endTime).toISOString(),
             recurrenceRule: recurrence || null,
+            reminderMinutes: reminderMinutes,
           },
         },
         {
@@ -114,6 +118,7 @@ export function EventFormDialog({
           endTime: new Date(endTime).toISOString(),
           description: description.trim() || null,
           ...(recurrence ? { recurrenceRule: recurrence } : {}),
+          reminderMinutes: reminderMinutes,
         },
         {
           onSuccess: () => {
@@ -257,6 +262,22 @@ export function EventFormDialog({
           >
             {RECURRENCE_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="flex flex-col gap-[var(--space-1)]">
+          <span className="text-[length:var(--font-size-small)] text-[var(--color-text-secondary)]">Reminder</span>
+          <select
+            data-testid="event-reminder-select"
+            value={reminderMinutes === null ? '' : String(reminderMinutes)}
+            onChange={(e) => setReminderMinutes(e.target.value === '' ? null : Number(e.target.value))}
+            className="rounded border border-[var(--color-border)] bg-[var(--color-bg-primary)] px-[var(--space-2)] py-[var(--space-1)] text-[length:var(--font-size-body)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent)]"
+          >
+            {REMINDER_OPTIONS.map((opt) => (
+              <option key={opt.value === null ? 'none' : opt.value} value={opt.value === null ? '' : String(opt.value)}>
                 {opt.label}
               </option>
             ))}
