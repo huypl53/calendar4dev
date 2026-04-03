@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
+import { describe, it, expect, vi, afterEach, beforeEach } from 'vitest'
 import { render, screen, cleanup } from '@testing-library/react'
 import { StatusBar } from './status-bar.js'
 
@@ -13,15 +13,26 @@ afterEach(() => {
 })
 
 describe('StatusBar', () => {
+  beforeEach(() => {
+    Object.defineProperty(navigator, 'onLine', { value: true, writable: true, configurable: true })
+  })
+
   it('renders current time', () => {
     render(<StatusBar />)
     expect(screen.getByTestId('status-bar-time')).toBeInTheDocument()
     expect(screen.getByTestId('status-bar-time').textContent).toMatch(/\d{1,2}:\d{2}\s?(AM|PM)/i)
   })
 
-  it('renders sync status', () => {
+  it('renders sync status when online', () => {
     render(<StatusBar />)
     expect(screen.getByTestId('status-bar-sync')).toHaveTextContent('Synced')
+  })
+
+  it('shows offline indicator when offline', () => {
+    Object.defineProperty(navigator, 'onLine', { value: false, writable: true, configurable: true })
+    render(<StatusBar />)
+    expect(screen.getByTestId('status-bar-offline')).toBeInTheDocument()
+    expect(screen.queryByTestId('status-bar-sync')).not.toBeInTheDocument()
   })
 
   it('uses density token for height', () => {
