@@ -1,11 +1,14 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+export type DefaultView = 'day' | 'week' | 'month' | 'schedule'
+
 export interface UIState {
   sidebarOpen: boolean
   theme: 'dark' | 'light'
   density: 'compact' | 'comfortable'
   accentColor: string
+  defaultView: DefaultView
   setSidebarOpen: (open: boolean) => void
   toggleSidebar: () => void
   setTheme: (theme: 'dark' | 'light') => void
@@ -13,6 +16,7 @@ export interface UIState {
   setDensity: (density: 'compact' | 'comfortable') => void
   toggleDensity: () => void
   setAccentColor: (color: string) => void
+  setDefaultView: (view: DefaultView) => void
 }
 
 export const useUIStore = create<UIState>()(
@@ -22,6 +26,7 @@ export const useUIStore = create<UIState>()(
       theme: 'dark',
       density: 'compact',
       accentColor: '#2f81f7',
+      defaultView: 'week',
       setSidebarOpen: (open) => set({ sidebarOpen: open }),
       toggleSidebar: () => set((state) => ({ sidebarOpen: !state.sidebarOpen })),
       setTheme: (theme) => set({ theme }),
@@ -33,6 +38,7 @@ export const useUIStore = create<UIState>()(
           density: state.density === 'compact' ? 'comfortable' : 'compact',
         })),
       setAccentColor: (color) => set({ accentColor: color }),
+      setDefaultView: (view) => set({ defaultView: view }),
     }),
     {
       name: 'dev-calendar-ui',
@@ -40,6 +46,7 @@ export const useUIStore = create<UIState>()(
         theme: state.theme,
         density: state.density,
         accentColor: state.accentColor,
+        defaultView: state.defaultView,
       }),
     },
   ),

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useUIStore } from '../../../stores/ui-store.js'
+import type { DefaultView } from '../../../stores/ui-store.js'
 import { ACCENT_COLOR_PRESETS } from '@dev-calendar/shared'
 import { Button } from '../../../components/ui/index.js'
 
@@ -12,6 +13,8 @@ export function AppearanceSettings() {
   const setTheme = useUIStore((s) => s.setTheme)
   const setDensity = useUIStore((s) => s.setDensity)
   const setAccentColor = useUIStore((s) => s.setAccentColor)
+  const defaultView = useUIStore((s) => s.defaultView)
+  const setDefaultView = useUIStore((s) => s.setDefaultView)
 
   const [customHex, setCustomHex] = useState('')
   const [hexError, setHexError] = useState(false)
@@ -77,6 +80,26 @@ export function AppearanceSettings() {
           >
             Comfortable
           </Button>
+        </div>
+      </fieldset>
+
+      {/* Default View */}
+      <fieldset>
+        <legend className="mb-1 text-[length:var(--font-size-small)] font-[number:var(--font-weight-medium)] text-[var(--color-text-secondary)]">
+          Default View
+        </legend>
+        <div className="flex gap-1">
+          {(['day', 'week', 'month', 'schedule'] as const).map((v) => (
+            <Button
+              key={v}
+              size="sm"
+              variant={defaultView === v ? 'primary' : 'secondary'}
+              data-testid={`default-view-${v}`}
+              onClick={() => setDefaultView(v as DefaultView)}
+            >
+              {v.charAt(0).toUpperCase() + v.slice(1)}
+            </Button>
+          ))}
         </div>
       </fieldset>
 
