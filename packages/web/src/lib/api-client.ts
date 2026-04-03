@@ -95,6 +95,7 @@ export const eventsApi = {
     allDay?: boolean
     location?: string | null
     color?: string | null
+    recurrenceRule?: string | null
   }) =>
     request<{ data: CalendarEvent }>('/api/events', {
       method: 'POST',

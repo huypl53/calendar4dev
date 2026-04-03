@@ -38,6 +38,7 @@ export function EventBlock({ event, onClick, color }: EventBlockProps) {
       }}
     >
       <div className="truncate font-sans text-[length:var(--font-size-tiny)] font-[number:var(--font-weight-medium)] leading-tight">
+        {event.recurrenceRule && <span title="Recurring">↻ </span>}
         {event.title}
       </div>
       <div className="truncate font-sans text-[length:var(--font-size-tiny)] leading-tight opacity-80">

@@ -6,6 +6,7 @@ import { useCreateEventMutation } from '../hooks/use-event-mutations.js'
 import { useUpdateEventMutation, useDeleteEventMutation } from '../hooks/use-event-mutations.js'
 import { useToast } from '../../../stores/toast-store.js'
 import type { CalendarEvent } from '../../../lib/api-client.js'
+import { RECURRENCE_OPTIONS } from '@dev-calendar/shared'
 
 export interface EventFormDialogProps {
   open: boolean
@@ -35,6 +36,7 @@ export function EventFormDialog({
   const [startTime, setStartTime] = useState('')
   const [endTime, setEndTime] = useState('')
   const [calendarId, setCalendarId] = useState('')
+  const [recurrence, setRecurrence] = useState('')
 
   const isEdit = !!event
 
@@ -47,12 +49,14 @@ export function EventFormDialog({
       setStartTime(toDatetimeLocal(event.startTime))
       setEndTime(toDatetimeLocal(event.endTime))
       setCalendarId(event.calendarId)
+      setRecurrence(event.recurrenceRule ?? '')
     } else {
       setTitle('')
       setDescription('')
       setStartTime(defaultStart ?? '')
       setEndTime(defaultEnd ?? '')
       setCalendarId(calendars?.[0]?.id ?? '')
+      setRecurrence('')
     }
   }, [open, event, defaultStart, defaultEnd, calendars])
 
@@ -69,6 +73,7 @@ export function EventFormDialog({
             description: description.trim() || null,
             startTime: new Date(startTime).toISOString(),
             endTime: new Date(endTime).toISOString(),
+            recurrenceRule: recurrence || null,
           },
         },
         {
@@ -87,6 +92,7 @@ export function EventFormDialog({
           startTime: new Date(startTime).toISOString(),
           endTime: new Date(endTime).toISOString(),
           description: description.trim() || null,
+          ...(recurrence ? { recurrenceRule: recurrence } : {}),
         },
         {
           onSuccess: () => {
@@ -180,6 +186,22 @@ export function EventFormDialog({
             rows={2}
             className="resize-none rounded border border-[var(--color-border)] bg-[var(--color-bg-primary)] px-[var(--space-2)] py-[var(--space-1)] text-[length:var(--font-size-body)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent)]"
           />
+        </label>
+
+        <label className="flex flex-col gap-[var(--space-1)]">
+          <span className="text-[length:var(--font-size-small)] text-[var(--color-text-secondary)]">Repeat</span>
+          <select
+            data-testid="event-recurrence-select"
+            value={recurrence}
+            onChange={(e) => setRecurrence(e.target.value)}
+            className="rounded border border-[var(--color-border)] bg-[var(--color-bg-primary)] px-[var(--space-2)] py-[var(--space-1)] text-[length:var(--font-size-body)] text-[var(--color-text-primary)] outline-none focus:border-[var(--color-accent)]"
+          >
+            {RECURRENCE_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>
+                {opt.label}
+              </option>
+            ))}
+          </select>
         </label>
 
         <div className="flex items-center justify-between pt-[var(--space-2)]">
