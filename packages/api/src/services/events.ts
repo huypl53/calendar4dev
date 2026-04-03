@@ -1,7 +1,7 @@
 import { eq, and, gte, lt, inArray } from 'drizzle-orm'
 import { db } from '../db/client.js'
 import { events } from '../db/schema/events.js'
-import { calendars } from '../db/schema/calendars.js'
+import { calendars, calendarMembers } from '../db/schema/calendars.js'
 import { NotFoundError, ForbiddenError } from '../lib/errors.js'
 import type { CreateEvent, UpdateEvent } from '@dev-calendar/shared'
 
@@ -14,12 +14,31 @@ async function assertCalendarOwner(calendarId: string, userId: string) {
   return calendar
 }
 
-async function assertEventOwner(eventId: string, userId: string) {
+async function assertEventAccess(eventId: string, userId: string, requireEdit = false) {
   const event = await db.query.events.findFirst({
     where: eq(events.id, eventId),
   })
   if (!event) throw new NotFoundError('Event not found')
-  await assertCalendarOwner(event.calendarId, userId)
+
+  const calendar = await db.query.calendars.findFirst({
+    where: eq(calendars.id, event.calendarId),
+  })
+  if (!calendar) throw new NotFoundError('Calendar not found')
+
+  // Owner can do anything
+  if (calendar.userId === userId) return event
+
+  // Check shared membership
+  const membership = await db.query.calendarMembers.findFirst({
+    where: and(eq(calendarMembers.calendarId, event.calendarId), eq(calendarMembers.userId, userId)),
+  })
+
+  if (!membership) throw new ForbiddenError('No access to this event')
+
+  if (requireEdit && membership.permissionLevel === 'details') {
+    throw new ForbiddenError('Read-only access to this calendar')
+  }
+
   return event
 }
 
@@ -45,38 +64,46 @@ export async function createEvent(data: CreateEvent, userId: string) {
 }
 
 export async function getEvent(eventId: string, userId: string) {
-  return assertEventOwner(eventId, userId)
+  return assertEventAccess(eventId, userId)
 }
 
 export async function listEvents(
   userId: string,
   filters: { calendarId?: string; startDate?: string; endDate?: string },
 ) {
-  // Get all user's calendar IDs
+  // Get owned calendar IDs
   const userCalendars = await db.query.calendars.findMany({
     where: eq(calendars.userId, userId),
     columns: { id: true },
   })
-  const calendarIds = userCalendars.map((c) => c.id)
-  if (calendarIds.length === 0) return []
+  const ownedIds = userCalendars.map((c) => c.id)
+
+  // Get shared calendar IDs (where user is a member with ≥ details permission)
+  const memberships = await db.query.calendarMembers.findMany({
+    where: eq(calendarMembers.userId, userId),
+    columns: { calendarId: true },
+  })
+  const sharedIds = memberships.map((m) => m.calendarId)
+
+  const allCalendarIds = [...new Set([...ownedIds, ...sharedIds])]
+  if (allCalendarIds.length === 0) return []
 
   const conditions = []
 
   if (filters.calendarId) {
-    if (!calendarIds.includes(filters.calendarId)) {
-      throw new ForbiddenError('Not calendar owner')
+    if (!allCalendarIds.includes(filters.calendarId)) {
+      throw new ForbiddenError('No access to this calendar')
     }
     conditions.push(eq(events.calendarId, filters.calendarId))
   } else {
-    conditions.push(inArray(events.calendarId, calendarIds))
+    conditions.push(inArray(events.calendarId, allCalendarIds))
   }
 
-  // Overlap semantics: event overlaps range if startTime < rangeEnd+1day AND endTime >= rangeStart
+  // Overlap semantics: event overlaps range if endTime >= rangeStart AND startTime < rangeEnd+1day
   if (filters.startDate) {
     conditions.push(gte(events.endTime, new Date(filters.startDate + 'T00:00:00.000Z')))
   }
   if (filters.endDate) {
-    // Use day after endDate for exclusive upper bound
     const nextDay = new Date(filters.endDate + 'T00:00:00.000Z')
     nextDay.setDate(nextDay.getDate() + 1)
     conditions.push(lt(events.startTime, nextDay))
@@ -89,7 +116,7 @@ export async function listEvents(
 }
 
 export async function updateEvent(eventId: string, data: UpdateEvent, userId: string) {
-  const event = await assertEventOwner(eventId, userId)
+  const event = await assertEventAccess(eventId, userId, true)
 
   const values: Record<string, unknown> = {}
   if (data.title !== undefined) values.title = data.title
@@ -117,7 +144,6 @@ export async function updateEvent(eventId: string, data: UpdateEvent, userId: st
 }
 
 export async function deleteEvent(eventId: string, userId: string) {
-  await assertEventOwner(eventId, userId)
-
+  await assertEventAccess(eventId, userId, true)
   await db.delete(events).where(eq(events.id, eventId))
 }
