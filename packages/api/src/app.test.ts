@@ -6,6 +6,15 @@ vi.mock('./db/client.js', () => ({
   },
 }))
 
+vi.mock('./auth/config.js', () => ({
+  auth: {
+    handler: vi.fn().mockResolvedValue(new Response(JSON.stringify({ ok: true }), { status: 200 })),
+    api: {
+      getSession: vi.fn().mockResolvedValue(null),
+    },
+  },
+}))
+
 import { app } from './app.js'
 
 describe('app', () => {
@@ -31,9 +40,11 @@ describe('app', () => {
     expect(html).toContain('scalar')
   })
 
-  it('returns error response for unknown routes', async () => {
+  it('returns 401 for unauthenticated requests to protected routes', async () => {
     const res = await app.request('/api/nonexistent')
-    expect(res.status).toBe(404)
+    expect(res.status).toBe(401)
+    const body = await res.json()
+    expect(body.error.code).toBe('UNAUTHORIZED')
   })
 
   it('includes CORS headers', async () => {

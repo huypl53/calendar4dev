@@ -4,6 +4,8 @@ import { requestLogger } from './middleware/logger.js'
 import { corsMiddleware } from './middleware/cors.js'
 import { defaultLimiter, authLimiter } from './middleware/rate-limiter.js'
 import { errorHandler } from './middleware/error-handler.js'
+import { requireAuth } from './auth/middleware.js'
+import { auth } from './auth/config.js'
 import { mountRoutes } from './routes/index.js'
 
 export const app = new OpenAPIHono()
@@ -15,6 +17,12 @@ app.use(requestLogger)
 app.use(corsMiddleware)
 app.use('/api/*', defaultLimiter)
 app.use('/api/auth/*', authLimiter)
+
+// Better Auth route handler (all auth routes)
+app.on(['POST', 'GET'], '/api/auth/**', (c) => auth.handler(c.req.raw))
+
+// Auth middleware: protect /api/* except auth, healthz, docs
+app.use('/api/*', requireAuth)
 
 // Mount routes
 mountRoutes(app)

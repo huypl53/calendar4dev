@@ -15,7 +15,10 @@ describe('sessions table schema', () => {
     expect(columnNames).toContain('userId')
     expect(columnNames).toContain('token')
     expect(columnNames).toContain('expiresAt')
+    expect(columnNames).toContain('ipAddress')
+    expect(columnNames).toContain('userAgent')
     expect(columnNames).toContain('createdAt')
+    expect(columnNames).toContain('updatedAt')
   })
 
   it('has id as primary key with default', () => {
@@ -34,6 +37,13 @@ describe('sessions table schema', () => {
     const userIdCol = config.columns.find(c => c.name === 'userId')!
     expect(userIdCol.notNull).toBe(true)
     expect(config.foreignKeys.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('has ipAddress and userAgent as nullable', () => {
+    const ipCol = config.columns.find(c => c.name === 'ipAddress')!
+    const uaCol = config.columns.find(c => c.name === 'userAgent')!
+    expect(ipCol.notNull).toBe(false)
+    expect(uaCol.notNull).toBe(false)
   })
 
   it('has index on userId', () => {

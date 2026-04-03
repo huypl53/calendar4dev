@@ -50,7 +50,22 @@ Drizzle ORM with PostgreSQL (postgres.js driver). Uses `casing: 'snake_case'` in
 - **OpenAPI docs**: Spec at `/api/openapi.json`, Scalar UI at `/api/docs`
 - **Route organization**: Domain-grouped files under `packages/api/src/routes/`, barrel mount in `routes/index.ts`
 - **Startup sequence**: validate env → run migrations → register middleware → mount routes → serve
-- **Vitest config**: `packages/api/vitest.config.ts` provides `DATABASE_URL` and `NODE_ENV=test` to avoid env validation failures in tests
+- **Vitest config**: `packages/api/vitest.config.ts` provides `DATABASE_URL`, `NODE_ENV=test`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL` to avoid env validation failures in tests
+
+## Authentication (Story 1-4)
+
+- **Library**: Better Auth v1.5.x with Drizzle adapter at `better-auth/adapters/drizzle`
+- **Server config**: `packages/api/src/auth/config.ts` — betterAuth instance with email/password + conditional GitHub OAuth
+- **Route handler**: Mounted at `app.on(['POST', 'GET'], '/api/auth/**', ...)` in `app.ts` after CORS but before route mounting. All auth endpoints handled by Better Auth
+- **Auth middleware**: `packages/api/src/auth/middleware.ts` — `requireAuth` middleware on `/api/*` with public path exclusions for `/api/auth/*`, `/healthz`, `/api/openapi.json`, `/api/docs`
+- **Schema**: Users table adapted (passwordHash removed, emailVerified/image added). Sessions table adapted (ipAddress/userAgent/updatedAt added). New tables: accounts (OAuth + password data), verifications (email tokens)
+- **Frontend client**: `packages/web/src/lib/auth-client.ts` using `createAuthClient` from `better-auth/react`
+- **Login page**: `packages/web/src/pages/login.tsx` — GitHub OAuth button, email/password form, sign-up toggle
+- **Routing**: TanStack Router with code-based route tree. Root layout with devtools, public `/login`, authenticated layout with `beforeLoad` guard that checks session
+- **Environment**: `BETTER_AUTH_SECRET` (required, min 32 chars), `BETTER_AUTH_URL` (required), `GITHUB_CLIENT_ID`/`GITHUB_CLIENT_SECRET` (optional — omit to disable GitHub OAuth)
+- **drizzle-kit note**: `drizzle-kit generate` requires TTY for column rename prompts. Use `--custom` flag for non-interactive environments and write migration SQL manually
+- **TanStack Router note**: `createFileRoute` requires file-based code generation tooling. For code-based routing, use `createRoute` with `getParentRoute` + manual route tree assembly in `route-tree.ts`
+- **Web tsconfig**: `declaration: false` / `declarationMap: false` required because better-auth's inferred types reference internal modules not portable for declaration emit (only affects library builds, not Vite apps)
 
 ## Key Decisions
 

@@ -8,6 +8,13 @@
       "when": 1775036360559,
       "tag": "0000_burly_blue_blade",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1775040466318,
+      "tag": "0001_better-auth-schema",
+      "breakpoints": true
     }
   ]
 }
