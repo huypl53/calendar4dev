@@ -9,15 +9,18 @@ export interface DialogProps {
 
 export function Dialog({ open, onClose, title, children }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null)
+  const lastFocusRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
     const dialog = ref.current
     if (!dialog) return
 
     if (open && !dialog.open) {
+      lastFocusRef.current = document.activeElement as HTMLElement
       dialog.showModal()
     } else if (!open && dialog.open) {
       dialog.close()
+      lastFocusRef.current?.focus()
     }
   }, [open])
 

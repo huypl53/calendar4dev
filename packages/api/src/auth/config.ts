@@ -4,6 +4,14 @@ import { db } from '../db/client.js'
 import * as schema from '../db/schema/index.js'
 import { env } from '../env.js'
 
+// NOTE: Session tokens are stored in plaintext in the `sessions` table.
+// The session cookie IS signed (HMAC via BETTER_AUTH_SECRET), so DB tokens
+// alone cannot be used to forge valid cookies — an attacker also needs the
+// secret key. Hashing tokens before DB storage (SHA-256) would add a second
+// layer, but Better Auth v1.x does not expose a hook that intercepts both
+// createSession (write) AND findSession (read), which are both needed to
+// implement transparent hashing. Track the upstream issue; revisit when
+// Better Auth adds native token-hashing support.
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: 'pg',

@@ -34,9 +34,15 @@ const healthRoute = createRoute({
 
 const app = new OpenAPIHono()
 
+const DB_HEALTH_TIMEOUT_MS = 3000
+
 app.openapi(healthRoute, async (c) => {
+  const timeout = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error('DB health check timed out')), DB_HEALTH_TIMEOUT_MS),
+  )
+
   try {
-    await db.execute(sql`SELECT 1`)
+    await Promise.race([db.execute(sql`SELECT 1`), timeout])
     return c.json({
       status: 'healthy' as const,
       db: 'connected' as const,
