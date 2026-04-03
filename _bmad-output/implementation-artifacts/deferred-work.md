@@ -31,3 +31,10 @@
 - 3-digit hex shorthand (#fff) rejected by validator — only 6-digit supported. Document or extend in future UX pass
 - Login page uses --color-accent but AppShell (which sets it) is not rendered on /login — returning users see default blue instead of persisted accent
 - White checkmark on light-colored accent presets has poor contrast — needs luminance-based check for dark/light checkmark
+
+## Deferred from: code review of 2-3-core-ui-primitives (2026-04-03)
+
+- Badge default variant with custom color hardcodes white text — needs luminance-based contrast check for light colors
+- Tooltip lacks aria-describedby linking trigger to tooltip element — ARIA tooltip pattern compliance for Epic 9
+- Tooltip positions above trigger only, will clip in overflow-hidden containers (e.g., sidebar) — add placement strategy when needed
+- Accent color CSS variable flash on page load before useEffect fires — accent-dependent components (Button primary, Badge dot) briefly show default color

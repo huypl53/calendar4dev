@@ -1,6 +1,6 @@
 # Story 2.3: Core UI Primitives
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
