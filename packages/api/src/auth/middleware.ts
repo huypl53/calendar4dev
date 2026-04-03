@@ -1,7 +1,7 @@
 import type { MiddlewareHandler } from 'hono'
 import { auth } from './config.js'
 
-const PUBLIC_PREFIXES = ['/api/auth/']
+const PUBLIC_PREFIXES = ['/api/auth/', '/api/ical/']
 const PUBLIC_EXACT = ['/api/openapi.json', '/api/docs']
 
 function isPublicPath(path: string): boolean {

@@ -91,4 +91,13 @@ app.post('/api/calendars/:id/import', async (c) => {
   return c.json({ imported })
 })
 
+// POST /api/calendars/:id/ical-feed — generate or return share token (authenticated)
+app.post('/api/calendars/:id/ical-feed', async (c) => {
+  const id = c.req.param('id')
+  const user = c.get('user')
+  const token = await calendarService.getOrCreateShareToken(id, user.id)
+  const baseUrl = new URL(c.req.url).origin
+  return c.json({ feedUrl: `${baseUrl}/api/ical/${token}` })
+})
+
 export default app

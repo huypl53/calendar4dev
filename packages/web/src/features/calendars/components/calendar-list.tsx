@@ -22,6 +22,21 @@ export function CalendarList() {
     a.click()
   }
 
+  async function handleCopyFeed(calendarId: string) {
+    try {
+      const res = await fetch(`/api/calendars/${calendarId}/ical-feed`, {
+        method: 'POST',
+        credentials: 'include',
+      })
+      if (!res.ok) throw new Error('Failed to get feed URL')
+      const data = await res.json() as { feedUrl: string }
+      await navigator.clipboard.writeText(data.feedUrl)
+      toast('iCal feed URL copied to clipboard', 'success')
+    } catch {
+      toast('Failed to copy feed URL', 'error')
+    }
+  }
+
   function handleImportClick(calendarId: string) {
     setImportCalendarId(calendarId)
     importRef.current?.click()
@@ -117,6 +132,19 @@ export function CalendarList() {
               <svg className="h-3 w-3" viewBox="0 0 16 16" fill="currentColor">
                 <path d="M11.5 2a2.5 2.5 0 100 5 2.5 2.5 0 000-5zm-7 3a2.5 2.5 0 100 5 2.5 2.5 0 000-5zm7 5a2.5 2.5 0 100 5 2.5 2.5 0 000-5z"/>
                 <path d="M4.5 7.5l7-4M4.5 8.5l7 4"/>
+              </svg>
+            </button>
+            <button
+              type="button"
+              data-testid={`ical-feed-${cal.id}`}
+              onClick={() => handleCopyFeed(cal.id)}
+              className="shrink-0 rounded p-[2px] text-[var(--color-text-tertiary)] opacity-0 hover:bg-[var(--color-bg-primary)] hover:text-[var(--color-text-primary)] group-hover:opacity-100"
+              aria-label={`Copy iCal feed URL for ${cal.name}`}
+              title="Copy iCal feed URL"
+            >
+              <svg className="h-3 w-3" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M4 1.5H3a2 2 0 00-2 2V14a2 2 0 002 2h10a2 2 0 002-2V3.5a2 2 0 00-2-2h-1v1h1a1 1 0 011 1V14a1 1 0 01-1 1H3a1 1 0 01-1-1V3.5a1 1 0 011-1h1v-1z"/>
+                <path d="M9.5 1a.5.5 0 01.5.5v1a.5.5 0 01-.5.5h-3a.5.5 0 01-.5-.5v-1a.5.5 0 01.5-.5h3zm-3-1A1.5 1.5 0 005 1.5v1A1.5 1.5 0 006.5 4h3A1.5 1.5 0 0011 2.5v-1A1.5 1.5 0 009.5 0h-3z"/>
               </svg>
             </button>
             <button

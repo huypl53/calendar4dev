@@ -148,6 +148,13 @@ export async function deleteEvent(eventId: string, userId: string) {
   await db.delete(events).where(eq(events.id, eventId))
 }
 
+export async function listEventsForCalendar(calendarId: string) {
+  return db.query.events.findMany({
+    where: eq(events.calendarId, calendarId),
+    orderBy: events.startTime,
+  })
+}
+
 export async function searchEvents(userId: string, query: string, limit = 20) {
   // Get all accessible calendar IDs
   const userCalendars = await db.query.calendars.findMany({
