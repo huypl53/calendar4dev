@@ -32,6 +32,7 @@ describe('createCommands', () => {
       toggleDensity: vi.fn(),
       toggleSidebar: vi.fn(),
       openCreateEvent: vi.fn(),
+      openSearch: vi.fn(),
     })
     expect(commands.length).toBeGreaterThan(0)
     expect(commands.every((c) => c.id && c.label && c.category)).toBe(true)
@@ -45,6 +46,7 @@ describe('createCommands', () => {
       toggleDensity: vi.fn(),
       toggleSidebar: vi.fn(),
       openCreateEvent: vi.fn(),
+      openSearch: vi.fn(),
     })
     const viewDay = commands.find((c) => c.id === 'view-day')
     expect(viewDay?.shortcut).toBe('d')
@@ -59,6 +61,7 @@ describe('createCommands', () => {
       toggleDensity: vi.fn(),
       toggleSidebar: vi.fn(),
       openCreateEvent: vi.fn(),
+      openSearch: vi.fn(),
     })
     commands.find((c) => c.id === 'view-week')!.action()
     expect(navigate).toHaveBeenCalledWith('/week/2026-04-03')
@@ -73,6 +76,7 @@ describe('createCommands', () => {
       toggleDensity: vi.fn(),
       toggleSidebar: vi.fn(),
       openCreateEvent,
+      openSearch: vi.fn(),
     })
     commands.find((c) => c.id === 'create-event')!.action()
     expect(openCreateEvent).toHaveBeenCalled()

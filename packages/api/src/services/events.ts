@@ -1,4 +1,4 @@
-import { eq, and, gte, lt, inArray } from 'drizzle-orm'
+import { eq, and, gte, lt, inArray, sql } from 'drizzle-orm'
 import { db } from '../db/client.js'
 import { events } from '../db/schema/events.js'
 import { calendars, calendarMembers } from '../db/schema/calendars.js'
@@ -146,4 +146,36 @@ export async function updateEvent(eventId: string, data: UpdateEvent, userId: st
 export async function deleteEvent(eventId: string, userId: string) {
   await assertEventAccess(eventId, userId, true)
   await db.delete(events).where(eq(events.id, eventId))
+}
+
+export async function searchEvents(userId: string, query: string, limit = 20) {
+  // Get all accessible calendar IDs
+  const userCalendars = await db.query.calendars.findMany({
+    where: eq(calendars.userId, userId),
+    columns: { id: true },
+  })
+  const ownedIds = userCalendars.map((c) => c.id)
+  const memberships = await db.query.calendarMembers.findMany({
+    where: eq(calendarMembers.userId, userId),
+    columns: { calendarId: true },
+  })
+  const sharedIds = memberships.map((m) => m.calendarId)
+  const allCalendarIds = [...new Set([...ownedIds, ...sharedIds])]
+  if (allCalendarIds.length === 0) return []
+
+  // Sanitize query: escape special tsquery characters
+  const sanitized = query.trim().replace(/[&|!():*'\\]/g, ' ').trim()
+  if (!sanitized) return []
+
+  // Use prefix matching with :* and websearch_to_tsquery fallback
+  const tsQuery = sanitized.split(/\s+/).filter(Boolean).map(w => `${w}:*`).join(' & ')
+
+  return db.select().from(events).where(
+    and(
+      inArray(events.calendarId, allCalendarIds),
+      sql`${events.searchVector} @@ to_tsquery('english', ${tsQuery})`,
+    ),
+  ).orderBy(
+    sql`ts_rank(${events.searchVector}, to_tsquery('english', ${tsQuery})) DESC`,
+  ).limit(limit)
 }

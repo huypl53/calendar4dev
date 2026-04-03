@@ -55,6 +55,11 @@ export function getWeekDays(date: string): string[] {
   return days
 }
 
+/** Returns the Monday YYYY-MM-DD for the week containing the given date. */
+export function getWeekStart(date: string): string {
+  return getWeekDays(date)[0]!
+}
+
 /** Returns the day name and number for a date header. */
 export function formatDayHeader(date: string): { dayName: string; dayNumber: number } {
   const d = toDate(date)
