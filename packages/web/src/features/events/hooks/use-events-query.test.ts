@@ -1,9 +1,15 @@
-import { describe, it, expect, afterEach } from 'vitest'
+import { describe, it, expect, afterEach, vi } from 'vitest'
 import { renderHook, waitFor, cleanup } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createElement } from 'react'
 import type { ReactNode } from 'react'
 import { useEventsQuery } from './use-events-query.js'
+
+vi.mock('../../../lib/api-client.js', () => ({
+  eventsApi: {
+    list: vi.fn().mockResolvedValue([]),
+  },
+}))
 
 afterEach(() => {
   cleanup()
@@ -21,10 +27,13 @@ function createWrapper() {
 }
 
 describe('useEventsQuery', () => {
-  it('returns empty array when calendarId is provided', async () => {
+  it('returns empty array when date range is provided', async () => {
     const wrapper = createWrapper()
 
-    const { result } = renderHook(() => useEventsQuery('cal-1'), { wrapper })
+    const { result } = renderHook(
+      () => useEventsQuery({ calendarId: 'cal-1', startDate: '2026-04-01', endDate: '2026-04-07' }),
+      { wrapper },
+    )
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true)
@@ -33,10 +42,13 @@ describe('useEventsQuery', () => {
     expect(result.current.data).toEqual([])
   })
 
-  it('is disabled when calendarId is undefined', () => {
+  it('is disabled when startDate and endDate are missing', () => {
     const wrapper = createWrapper()
 
-    const { result } = renderHook(() => useEventsQuery(), { wrapper })
+    const { result } = renderHook(
+      () => useEventsQuery({ calendarId: 'cal-1' }),
+      { wrapper },
+    )
 
     expect(result.current.fetchStatus).toBe('idle')
     expect(result.current.isLoading).toBe(false)
@@ -52,12 +64,13 @@ describe('useEventsQuery', () => {
     const wrapper = ({ children }: { children: ReactNode }) =>
       createElement(QueryClientProvider, { client: queryClient }, children)
 
-    renderHook(() => useEventsQuery('cal-42'), { wrapper })
+    const params = { calendarId: 'cal-42', startDate: '2026-04-01', endDate: '2026-04-07' }
+    renderHook(() => useEventsQuery(params), { wrapper })
 
     await waitFor(() => {
       const queries = queryClient.getQueryCache().findAll()
       expect(queries).toHaveLength(1)
-      expect(queries[0]!.queryKey).toEqual(['events', { calendarId: 'cal-42' }])
+      expect(queries[0]!.queryKey).toEqual(['events', params])
     })
   })
 })

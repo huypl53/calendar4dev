@@ -1,0 +1,77 @@
+import { Hono } from 'hono'
+import { createEventSchema, updateEventSchema } from '@dev-calendar/shared'
+import { ValidationError } from '../lib/errors.js'
+import * as eventService from '../services/events.js'
+
+type AppEnv = { Variables: { user: { id: string }; session: unknown } }
+
+function serializeEvent(event: Record<string, unknown>) {
+  return {
+    id: event.id,
+    calendarId: event.calendarId,
+    title: event.title,
+    description: event.description ?? null,
+    startTime: event.startTime instanceof Date ? event.startTime.toISOString() : String(event.startTime),
+    endTime: event.endTime instanceof Date ? event.endTime.toISOString() : String(event.endTime),
+    allDay: event.allDay,
+    location: event.location ?? null,
+    color: event.color ?? null,
+    status: event.status,
+    visibility: event.visibility,
+    eventType: event.eventType,
+    recurrenceRule: event.recurrenceRule ?? null,
+    createdAt: event.createdAt instanceof Date ? event.createdAt.toISOString() : String(event.createdAt),
+    updatedAt: event.updatedAt instanceof Date ? event.updatedAt.toISOString() : String(event.updatedAt),
+  }
+}
+
+const app = new Hono<AppEnv>()
+
+// POST /api/events
+app.post('/api/events', async (c) => {
+  const raw = await c.req.json()
+  const parsed = createEventSchema.safeParse(raw)
+  if (!parsed.success) throw new ValidationError('Validation failed', parsed.error.issues)
+  const user = c.get('user')
+  const event = await eventService.createEvent(parsed.data, user.id)
+  return c.json({ data: serializeEvent(event) }, 201)
+})
+
+// GET /api/events
+app.get('/api/events', async (c) => {
+  const calendarId = c.req.query('calendarId')
+  const startDate = c.req.query('startDate')
+  const endDate = c.req.query('endDate')
+  const user = c.get('user')
+  const events = await eventService.listEvents(user.id, { calendarId, startDate, endDate })
+  return c.json({ data: events.map((e) => serializeEvent(e)) })
+})
+
+// GET /api/events/:id
+app.get('/api/events/:id', async (c) => {
+  const id = c.req.param('id')
+  const user = c.get('user')
+  const event = await eventService.getEvent(id, user.id)
+  return c.json({ data: serializeEvent(event) })
+})
+
+// PATCH /api/events/:id
+app.patch('/api/events/:id', async (c) => {
+  const id = c.req.param('id')
+  const raw = await c.req.json()
+  const parsed = updateEventSchema.safeParse(raw)
+  if (!parsed.success) throw new ValidationError('Validation failed', parsed.error.issues)
+  const user = c.get('user')
+  const event = await eventService.updateEvent(id, parsed.data, user.id)
+  return c.json({ data: serializeEvent(event) })
+})
+
+// DELETE /api/events/:id
+app.delete('/api/events/:id', async (c) => {
+  const id = c.req.param('id')
+  const user = c.get('user')
+  await eventService.deleteEvent(id, user.id)
+  return c.body(null, 204)
+})
+
+export default app
