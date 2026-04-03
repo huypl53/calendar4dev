@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { AppearanceSettings } from '../features/settings/index.js'
 import { MiniCalendar } from '../features/calendars/components/mini-calendar.js'
 import { CalendarList } from '../features/calendars/components/calendar-list.js'
 import { ProfileSettings } from '../features/user/components/profile-settings.js'
+import { useUIStore } from '../stores/ui-store.js'
 
 interface SidebarProps {
   embedded?: boolean
@@ -12,6 +13,12 @@ type Panel = 'settings' | 'profile' | null
 
 function SidebarContent() {
   const [panel, setPanel] = useState<Panel>(null)
+  const sidebarOpen = useUIStore((s) => s.sidebarOpen)
+
+  // Reset open panel when the mobile sidebar slides off-screen
+  useEffect(() => {
+    if (!sidebarOpen) setPanel(null)
+  }, [sidebarOpen])
 
   function toggle(name: Panel) {
     setPanel((prev) => (prev === name ? null : name))
