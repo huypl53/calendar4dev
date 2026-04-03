@@ -133,10 +133,18 @@ The app uses a CSS custom property-based design token system. All tokens are def
 **Calendar Views:**
 - **Week view** (`/week/:date`): 7-day columns × 24-hour time grid, auto-scrolls to 8 AM
 - **Day view** (`/day/:date`): Single-day time grid with full date header
-- **Month view** (`/month/:date`): 6-week × 7-day calendar grid, out-of-month days dimmed
-- **Schedule view** (`/schedule`): 14-day agenda list with date-grouped sections
+- **Month view** (`/month/:date`): 6-week × 7-day calendar grid, out-of-month days dimmed, up to 3 events per cell
+- **Schedule view** (`/schedule`): 14-day agenda list with date-grouped sections and event listings
 - **Now line**: Red current-time indicator on day/week grids, updates every minute
 - **Navigation**: Prev/next arrows step by view-appropriate unit (day/week/month). Today button returns to current date.
+
+**Event Management:**
+- **Create events**: Click any time grid cell (week/day) or month cell to open event creation dialog
+- **Event rendering**: Events displayed as positioned blocks on week/day views, color-coded titles in month view, listed in schedule view
+- **Edit events**: Click any event to open edit dialog with pre-populated fields
+- **Delete events**: Delete button in edit dialog with confirmation
+- **Form fields**: Title (required), start/end datetime, description, calendar selector
+- **Toast notifications**: Success/error feedback for all event operations
 
 **Routes** (all require authentication):
 - `/week/:date` — Week view (default)
@@ -157,3 +165,10 @@ The app uses a CSS custom property-based design token system. All tokens are def
 | `POST /api/auth/sign-in/social` | OAuth login (GitHub) |
 | `GET /api/auth/get-session` | Get current session |
 | `POST /api/auth/sign-out` | Sign out |
+| `GET /api/calendars` | List user's calendars |
+| `POST /api/calendars/bootstrap` | Create default calendar (idempotent) |
+| `POST /api/events` | Create a new event |
+| `GET /api/events` | List events (query: calendarId, startDate, endDate) |
+| `GET /api/events/:id` | Get a single event |
+| `PATCH /api/events/:id` | Update an event |
+| `DELETE /api/events/:id` | Delete an event |

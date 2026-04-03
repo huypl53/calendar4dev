@@ -134,6 +134,20 @@ Drizzle ORM with PostgreSQL (postgres.js driver). Uses `casing: 'snake_case'` in
 - **Gutter width token**: `--density-gutter-width` (compact: 60px, comfortable: 72px) used by all grid layouts instead of hardcoded `60px`.
 - **Route structure**: `/day/$date`, `/week/$date`, `/month/$date`, `/schedule`. All date routes have `beforeLoad` guard that redirects invalid dates to today. Views are lazy-loaded via `lazyRouteComponent`.
 
+## Event Management (Epic 4)
+
+- **API service layer**: `packages/api/src/services/events.ts` and `calendars.ts`. Ownership checks via `assertCalendarOwner`/`assertEventOwner` — events are always accessed through calendar ownership. `listEvents` uses `inArray` for multi-calendar filtering.
+- **API routes**: `packages/api/src/routes/events.ts` (POST/GET/PATCH/DELETE) and `calendars.ts` (GET/POST bootstrap). Uses plain `Hono<AppEnv>` (not OpenAPIHono) to avoid strict response typing issues with `Date` → ISO string serialization. Manual `safeParse` with Zod for validation.
+- **Calendar bootstrap**: `POST /api/calendars/bootstrap` creates a default "Personal" calendar if none exists. Idempotent — returns existing if already created.
+- **Frontend data layer**: `packages/web/src/lib/api-client.ts` — typed fetch wrapper with `ApiError` class, `credentials: 'include'` for session cookies. `calendarsApi` and `eventsApi` exports.
+- **React Query hooks**: `useEventsQuery({ calendarId?, startDate?, endDate? })` — disabled until date range provided. `useCreateEventMutation`/`useUpdateEventMutation`/`useDeleteEventMutation` with cache invalidation on `['events']`.
+- **Event rendering**: `EventBlock` component positioned absolutely within time-grid day columns. Position = `(startMinutes/1440) × 100%`, height = `(durationMinutes/1440) × 100%`. Minimum 15min visual height.
+- **TimeGrid events**: TimeGrid accepts `days[]` and `events[]` props. Events grouped by date into column overlays. `onCellClick(date, hour)` for creation, `onEventClick(event)` for editing.
+- **Event form dialog**: `EventFormDialog` handles both create and edit modes via optional `event` prop. Uses native `<dialog>`, form validation, toast notifications. Calendar selector shown when multiple calendars exist.
+- **Month view events**: `MonthGrid` shows up to 3 events per cell with "+N more" overflow indicator.
+- **Schedule view events**: Events listed under each day header with color dots and time ranges. Clickable for edit.
+- **Serialization pattern**: API routes use explicit `serializeEvent()` to convert Date fields to ISO strings — avoids `unknown` typing from spread on Drizzle select results.
+
 ## Key Decisions
 
 - **Tailwind CSS v4**: Uses CSS-first config with `@import "tailwindcss"` — no `tailwind.config.js` needed
