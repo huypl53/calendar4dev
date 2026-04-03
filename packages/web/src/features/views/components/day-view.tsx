@@ -1,19 +1,25 @@
 import { useState, useEffect, useRef } from 'react'
 import { useParams } from '@tanstack/react-router'
+import { useQueryClient } from '@tanstack/react-query'
 import { isToday } from '../../../lib/date-utils.js'
 import { useEventsQuery } from '../../events/hooks/use-events-query.js'
 import { useCalendarsQuery } from '../../calendars/hooks/use-calendars-query.js'
 import { useSharedCalendarsQuery } from '../../calendars/hooks/use-shared-calendars-query.js'
+import { useUpdateEventMutation } from '../../events/hooks/use-event-mutations.js'
 import { EventFormDialog } from '../../events/components/event-form-dialog.js'
 import { DayHeader } from './day-header.js'
 import { TimeGutter } from './time-gutter.js'
 import { TimeGrid } from './time-grid.js'
+import { useToast } from '../../../stores/toast-store.js'
 import type { CalendarEvent } from '../../../lib/api-client.js'
 
 export function DayView() {
   const { date } = useParams({ strict: false }) as { date: string }
   const showNowLine = isToday(date)
   const scrollRef = useRef<HTMLDivElement>(null)
+  const qc = useQueryClient()
+  const updateMutation = useUpdateEventMutation()
+  const { toast } = useToast()
 
   const { data: events, isLoading } = useEventsQuery({
     startDate: date,
@@ -64,6 +70,25 @@ export function DayView() {
     setEditEvent(event)
   }
 
+  function handleEventDrop(event: CalendarEvent, newStartTime: string, newEndTime: string) {
+    const snapshot = qc.getQueriesData<CalendarEvent[]>({ queryKey: ['events'] })
+    qc.setQueriesData<CalendarEvent[]>({ queryKey: ['events'] }, (old) =>
+      old?.map((e) => e.id === event.id ? { ...e, startTime: newStartTime, endTime: newEndTime } : e),
+    )
+    updateMutation.mutate(
+      { id: event.id, data: { startTime: newStartTime, endTime: newEndTime } },
+      {
+        onSuccess: () => { void qc.invalidateQueries({ queryKey: ['events'] }) },
+        onError: () => {
+          for (const [key, data] of snapshot) {
+            qc.setQueryData(key, data)
+          }
+          toast('Failed to move event', 'error')
+        },
+      },
+    )
+  }
+
   return (
     <div data-testid="day-view" className="flex h-full flex-col">
       <DayHeader date={date} />
@@ -87,6 +112,7 @@ export function DayView() {
               calendarColorMap={calendarColorMap}
               onCellClick={handleCellClick}
               onEventClick={handleEventClick}
+              onEventDrop={handleEventDrop}
             />
           </div>
         )}
