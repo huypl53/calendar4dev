@@ -9,13 +9,14 @@ export function Header() {
   return (
     <header
       data-testid="header"
-      className="col-span-full flex h-12 items-center gap-4 border-b border-[var(--color-text-primary)]/10 bg-[var(--color-bg-primary)] px-4"
+      className="col-span-full flex items-center gap-4 border-b border-[var(--color-border)] bg-[var(--color-bg-secondary)] px-4"
+      style={{ height: 'var(--density-header-height)' }}
     >
       <button
         type="button"
         aria-label="Toggle sidebar"
         onClick={toggleSidebar}
-        className="flex h-8 w-8 items-center justify-center rounded hover:bg-white/10"
+        className="flex h-8 w-8 items-center justify-center rounded hover:bg-[var(--color-bg-tertiary)]"
       >
         <span className="text-[var(--color-text-primary)]">&#9776;</span>
       </button>
@@ -24,7 +25,7 @@ export function Header() {
         Dev Calendar
       </span>
 
-      <nav className="ml-auto flex gap-2 font-mono text-xs text-[var(--color-text-primary)]/70">
+      <nav className="ml-auto flex gap-2 font-mono text-xs text-[var(--color-text-secondary)]">
         <Link to="/day/$date" params={{ date: today }}>D</Link>
         <Link to="/week/$date" params={{ date: today }}>W</Link>
         <Link to="/month/$date" params={{ date: today }}>M</Link>

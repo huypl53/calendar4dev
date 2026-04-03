@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { useUIStore } from '../stores/ui-store.js'
 import { Header } from './header.js'
 import { Sidebar } from './sidebar.js'
@@ -13,13 +13,19 @@ export function AppShell({ children }: AppShellProps) {
   const theme = useUIStore((state) => state.theme)
   const density = useUIStore((state) => state.density)
 
+  useEffect(() => {
+    const html = document.documentElement
+    html.classList.remove('dark', 'light')
+    html.classList.add(theme)
+    html.dataset.density = density
+  }, [theme, density])
+
   return (
     <div
-      className={`grid h-screen ${theme}`}
-      data-density={density}
+      className="grid h-screen bg-[var(--color-bg-primary)]"
       style={{
-        gridTemplateRows: '48px 1fr 28px',
-        gridTemplateColumns: `${sidebarOpen ? '240px' : '0px'} 1fr`,
+        gridTemplateRows: 'var(--density-header-height) 1fr var(--density-status-bar-height)',
+        gridTemplateColumns: `${sidebarOpen ? 'var(--density-sidebar-width)' : '0px'} 1fr`,
       }}
     >
       <Header />

@@ -15,3 +15,5 @@ export { CalendarPermission, CALENDAR_PERMISSION_VALUES } from './types/calendar
 export { DEFAULT_EVENT_DURATION } from './constants/defaults.js'
 export { CALENDAR_COLORS } from './constants/colors.js'
 export type { CalendarColor } from './constants/colors.js'
+export { ACCENT_COLOR_PRESETS, DEFAULT_ACCENT_COLOR } from './constants/accent-colors.js'
+export type { AccentColorPreset } from './constants/accent-colors.js'
