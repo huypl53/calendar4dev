@@ -36,6 +36,11 @@ export const auth = betterAuth({
   session: {
     expiresIn: 60 * 60 * 24 * 7,
     updateAge: 60 * 60 * 24,
+    // NOTE: cookieCache embeds session data in a signed cookie for 5 minutes.
+    // After changePassword() deletes all DB sessions, clients holding a cached
+    // cookie retain access for up to this window before the cache expires.
+    // This is a Better Auth framework limitation — no hook exists to invalidate
+    // the cookie cache on session deletion. Acceptable for current threat model.
     cookieCache: { enabled: true, maxAge: 60 * 5 },
   },
   trustedOrigins: env.CORS_ORIGIN === '*'
