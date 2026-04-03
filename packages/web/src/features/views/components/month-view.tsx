@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useParams } from '@tanstack/react-router'
 import { getMonthGridDates } from '../../../lib/date-utils.js'
 import { useEventsQuery } from '../../events/hooks/use-events-query.js'
+import { useCalendarsQuery } from '../../calendars/hooks/use-calendars-query.js'
 import { EventFormDialog } from '../../events/components/event-form-dialog.js'
 import { MonthGrid } from './month-grid.js'
 import type { CalendarEvent } from '../../../lib/api-client.js'
@@ -17,10 +18,16 @@ export function MonthView() {
 
   // Fetch events for the full 6-week grid range
   const gridDates = getMonthGridDates(date)
-  const { data: events } = useEventsQuery({
+  const { data: events, isLoading } = useEventsQuery({
     startDate: gridDates[0],
     endDate: gridDates[gridDates.length - 1],
   })
+  const { data: calendars } = useCalendarsQuery()
+
+  const calendarColorMap: Record<string, string> = {}
+  for (const cal of calendars ?? []) {
+    calendarColorMap[cal.id] = cal.color
+  }
 
   const [createDialog, setCreateDialog] = useState<{ open: boolean; start: string; end: string }>({
     open: false,
@@ -52,12 +59,19 @@ export function MonthView() {
         </h2>
       </div>
       <div className="flex-1 overflow-auto">
-        <MonthGrid
-          date={date}
-          events={events}
-          onDateClick={handleDateClick}
-          onEventClick={handleEventClick}
-        />
+        {isLoading ? (
+          <div className="flex h-full items-center justify-center">
+            <span className="text-[length:var(--font-size-small)] text-[var(--color-text-tertiary)]">Loading…</span>
+          </div>
+        ) : (
+          <MonthGrid
+            date={date}
+            events={events}
+            calendarColorMap={calendarColorMap}
+            onDateClick={handleDateClick}
+            onEventClick={handleEventClick}
+          />
+        )}
       </div>
 
       <EventFormDialog

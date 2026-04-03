@@ -7,13 +7,15 @@ const MAX_VISIBLE_EVENTS = 3
 interface MonthGridProps {
   date: string
   events?: CalendarEvent[]
+  /** calendarId → color for event coloring */
+  calendarColorMap?: Record<string, string>
   onDateClick?: (date: string) => void
   onEventClick?: (event: CalendarEvent) => void
 }
 
-export function MonthGrid({ date, events, onDateClick, onEventClick }: MonthGridProps) {
+export function MonthGrid({ date, events, calendarColorMap, onDateClick, onEventClick }: MonthGridProps) {
   const dates = getMonthGridDates(date)
-  const eventsByDate = groupEventsByDate(events ?? [])
+  const eventsByDate = groupEventsByDate(events ?? [], new Set(dates))
 
   return (
     <div data-testid="month-grid">
@@ -70,7 +72,7 @@ export function MonthGrid({ date, events, onDateClick, onEventClick }: MonthGrid
                       onEventClick?.(event)
                     }}
                     className="block w-full truncate rounded-sm px-1 text-left font-sans text-[length:var(--font-size-tiny)] leading-tight text-[var(--color-text-on-accent)]"
-                    style={{ backgroundColor: event.color ?? 'var(--color-accent)' }}
+                    style={{ backgroundColor: event.color ?? calendarColorMap?.[event.calendarId] ?? 'var(--color-accent)' }}
                   >
                     {event.title}
                   </button>
@@ -89,12 +91,21 @@ export function MonthGrid({ date, events, onDateClick, onEventClick }: MonthGrid
   )
 }
 
-function groupEventsByDate(events: CalendarEvent[]): Record<string, CalendarEvent[]> {
+/** Group events by date — multi-day events appear on every date they span */
+function groupEventsByDate(events: CalendarEvent[], dateSet: Set<string>): Record<string, CalendarEvent[]> {
   const result: Record<string, CalendarEvent[]> = {}
   for (const event of events) {
-    const date = event.startTime.slice(0, 10)
-    if (!result[date]) result[date] = []
-    result[date].push(event)
+    const startDate = event.startTime.slice(0, 10)
+    const endDate = event.endTime.slice(0, 10)
+    let current = startDate
+    while (current <= endDate) {
+      if (dateSet.has(current)) {
+        ;(result[current] ??= []).push(event)
+      }
+      const d = new Date(current + 'T00:00:00')
+      d.setDate(d.getDate() + 1)
+      current = d.toISOString().slice(0, 10)
+    }
   }
   return result
 }

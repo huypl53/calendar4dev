@@ -29,7 +29,12 @@ const app = new Hono<AppEnv>()
 
 // POST /api/events
 app.post('/api/events', async (c) => {
-  const raw = await c.req.json()
+  let raw: unknown
+  try {
+    raw = await c.req.json()
+  } catch {
+    throw new ValidationError('Invalid JSON body')
+  }
   const parsed = createEventSchema.safeParse(raw)
   if (!parsed.success) throw new ValidationError('Validation failed', parsed.error.issues)
   const user = c.get('user')
@@ -42,6 +47,13 @@ app.get('/api/events', async (c) => {
   const calendarId = c.req.query('calendarId')
   const startDate = c.req.query('startDate')
   const endDate = c.req.query('endDate')
+  const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/
+  if (startDate && (!ISO_DATE_RE.test(startDate) || isNaN(new Date(startDate).getTime()))) {
+    throw new ValidationError('startDate must be a valid YYYY-MM-DD date')
+  }
+  if (endDate && (!ISO_DATE_RE.test(endDate) || isNaN(new Date(endDate).getTime()))) {
+    throw new ValidationError('endDate must be a valid YYYY-MM-DD date')
+  }
   const user = c.get('user')
   const events = await eventService.listEvents(user.id, { calendarId, startDate, endDate })
   return c.json({ data: events.map((e) => serializeEvent(e)) })
@@ -58,7 +70,12 @@ app.get('/api/events/:id', async (c) => {
 // PATCH /api/events/:id
 app.patch('/api/events/:id', async (c) => {
   const id = c.req.param('id')
-  const raw = await c.req.json()
+  let raw: unknown
+  try {
+    raw = await c.req.json()
+  } catch {
+    throw new ValidationError('Invalid JSON body')
+  }
   const parsed = updateEventSchema.safeParse(raw)
   if (!parsed.success) throw new ValidationError('Validation failed', parsed.error.issues)
   const user = c.get('user')

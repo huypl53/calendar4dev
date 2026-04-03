@@ -36,36 +36,38 @@ describe('ScheduleView', () => {
     expect(screen.getByTestId('schedule-view')).toBeInTheDocument()
   })
 
-  it('renders 14 day sections', () => {
+  it('renders 14 day sections', async () => {
     renderSchedule()
-    const sections = screen.getAllByTestId(/^schedule-day-/)
+    const sections = await screen.findAllByTestId(/^schedule-day-/)
     expect(sections).toHaveLength(14)
   })
 
-  it('starts from today', () => {
+  it('starts from today', async () => {
     renderSchedule()
-    expect(screen.getByTestId('schedule-day-2026-04-03')).toBeInTheDocument()
+    expect(await screen.findByTestId('schedule-day-2026-04-03')).toBeInTheDocument()
   })
 
-  it('ends 13 days after today', () => {
+  it('ends 13 days after today', async () => {
     renderSchedule()
-    expect(screen.getByTestId('schedule-day-2026-04-16')).toBeInTheDocument()
+    expect(await screen.findByTestId('schedule-day-2026-04-16')).toBeInTheDocument()
   })
 
-  it('highlights today header with accent', () => {
+  it('highlights today header with accent', async () => {
     renderSchedule()
-    const todayHeader = screen.getByTestId('schedule-header-2026-04-03')
+    const todayHeader = await screen.findByTestId('schedule-header-2026-04-03')
     expect(todayHeader.className).toContain('bg-[var(--color-accent)]')
   })
 
-  it('does not highlight other days with accent', () => {
+  it('does not highlight other days with accent', async () => {
     renderSchedule()
-    const otherHeader = screen.getByTestId('schedule-header-2026-04-04')
+    const otherHeader = await screen.findByTestId('schedule-header-2026-04-04')
     expect(otherHeader.className).not.toContain('bg-[var(--color-accent)]')
   })
 
-  it('shows "No events" placeholder for each day', () => {
+  it('shows "No events" placeholder for each day', async () => {
     renderSchedule()
+    // Wait for loading to finish
+    await screen.findByTestId('schedule-day-2026-04-03')
     const placeholders = screen.getAllByText('No events')
     expect(placeholders).toHaveLength(14)
   })

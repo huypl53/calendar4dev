@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams } from '@tanstack/react-router'
 import { isToday } from '../../../lib/date-utils.js'
 import { useEventsQuery } from '../../events/hooks/use-events-query.js'
+import { useCalendarsQuery } from '../../calendars/hooks/use-calendars-query.js'
 import { EventFormDialog } from '../../events/components/event-form-dialog.js'
 import { DayHeader } from './day-header.js'
 import { TimeGutter } from './time-gutter.js'
@@ -13,10 +14,16 @@ export function DayView() {
   const showNowLine = isToday(date)
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const { data: events } = useEventsQuery({
+  const { data: events, isLoading } = useEventsQuery({
     startDate: date,
     endDate: date,
   })
+  const { data: calendars } = useCalendarsQuery()
+
+  const calendarColorMap: Record<string, string> = {}
+  for (const cal of calendars ?? []) {
+    calendarColorMap[cal.id] = cal.color
+  }
 
   const [createDialog, setCreateDialog] = useState<{ open: boolean; start: string; end: string }>({
     open: false,
@@ -58,17 +65,24 @@ export function DayView() {
         className="flex-1 overflow-auto"
         data-testid="day-scroll-container"
       >
-        <div className="grid" style={{ gridTemplateColumns: 'var(--density-gutter-width) 1fr' }}>
-          <TimeGutter />
-          <TimeGrid
-            dayCount={1}
-            todayIndex={showNowLine ? 0 : undefined}
-            days={[date]}
-            events={events}
-            onCellClick={handleCellClick}
-            onEventClick={handleEventClick}
-          />
-        </div>
+        {isLoading ? (
+          <div className="flex h-full items-center justify-center">
+            <span className="text-[length:var(--font-size-small)] text-[var(--color-text-tertiary)]">Loading…</span>
+          </div>
+        ) : (
+          <div className="grid" style={{ gridTemplateColumns: 'var(--density-gutter-width) 1fr' }}>
+            <TimeGutter />
+            <TimeGrid
+              dayCount={1}
+              todayIndex={showNowLine ? 0 : undefined}
+              days={[date]}
+              events={events}
+              calendarColorMap={calendarColorMap}
+              onCellClick={handleCellClick}
+              onEventClick={handleEventClick}
+            />
+          </div>
+        )}
       </div>
 
       <EventFormDialog

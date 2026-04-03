@@ -1,21 +1,37 @@
 import { useState } from 'react'
 import { getTodayDate, addDays, isToday } from '../../../lib/date-utils.js'
 import { useEventsQuery } from '../../events/hooks/use-events-query.js'
+import { useCalendarsQuery } from '../../calendars/hooks/use-calendars-query.js'
 import { EventFormDialog } from '../../events/components/event-form-dialog.js'
 import type { CalendarEvent } from '../../../lib/api-client.js'
 
 export function ScheduleView() {
   const today = getTodayDate()
   const days = Array.from({ length: 14 }, (_, i) => addDays(today, i))
+  const daySet = new Set(days)
 
-  const { data: events } = useEventsQuery({
+  const { data: events, isLoading } = useEventsQuery({
     startDate: days[0],
     endDate: days[days.length - 1],
   })
+  const { data: calendars } = useCalendarsQuery()
 
-  const eventsByDate = groupEventsByDate(events ?? [])
+  const calendarColorMap: Record<string, string> = {}
+  for (const cal of calendars ?? []) {
+    calendarColorMap[cal.id] = cal.color
+  }
+
+  const eventsByDate = groupEventsByDate(events ?? [], daySet)
 
   const [editEvent, setEditEvent] = useState<CalendarEvent | undefined>()
+
+  if (isLoading) {
+    return (
+      <div data-testid="schedule-view" className="flex h-full items-center justify-center">
+        <span className="text-[length:var(--font-size-small)] text-[var(--color-text-tertiary)]">Loading…</span>
+      </div>
+    )
+  }
 
   return (
     <div data-testid="schedule-view" className="flex h-full flex-col overflow-auto">
@@ -59,7 +75,7 @@ export function ScheduleView() {
                   >
                     <div
                       className="h-3 w-3 shrink-0 rounded-full"
-                      style={{ backgroundColor: event.color ?? 'var(--color-accent)' }}
+                      style={{ backgroundColor: event.color ?? calendarColorMap[event.calendarId] ?? 'var(--color-accent)' }}
                     />
                     <div className="min-w-0 flex-1">
                       <div className="truncate font-sans text-[length:var(--font-size-body)] text-[var(--color-text-primary)]">
@@ -86,12 +102,21 @@ export function ScheduleView() {
   )
 }
 
-function groupEventsByDate(events: CalendarEvent[]): Record<string, CalendarEvent[]> {
+/** Group events by date — multi-day events appear on every date they span */
+function groupEventsByDate(events: CalendarEvent[], dateSet: Set<string>): Record<string, CalendarEvent[]> {
   const result: Record<string, CalendarEvent[]> = {}
   for (const event of events) {
-    const date = event.startTime.slice(0, 10)
-    if (!result[date]) result[date] = []
-    result[date].push(event)
+    const startDate = event.startTime.slice(0, 10)
+    const endDate = event.endTime.slice(0, 10)
+    let current = startDate
+    while (current <= endDate) {
+      if (dateSet.has(current)) {
+        ;(result[current] ??= []).push(event)
+      }
+      const d = new Date(current + 'T00:00:00')
+      d.setDate(d.getDate() + 1)
+      current = d.toISOString().slice(0, 10)
+    }
   }
   return result
 }
