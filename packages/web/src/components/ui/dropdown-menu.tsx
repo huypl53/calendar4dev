@@ -17,10 +17,12 @@ export function DropdownMenu({ trigger, items, align = 'left' }: DropdownMenuPro
   const [focusedIndex, setFocusedIndex] = useState(-1)
   const containerRef = useRef<HTMLDivElement>(null)
   const menuRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLSpanElement>(null)
 
   const close = useCallback(() => {
     setOpen(false)
     setFocusedIndex(-1)
+    triggerRef.current?.focus()
   }, [])
 
   useEffect(() => {
@@ -43,8 +45,8 @@ export function DropdownMenu({ trigger, items, align = 'left' }: DropdownMenuPro
 
   useEffect(() => {
     if (open && focusedIndex >= 0 && menuRef.current) {
-      const items = menuRef.current.querySelectorAll<HTMLButtonElement>('[data-menu-item]')
-      items[focusedIndex]?.focus()
+      const menuItems = menuRef.current.querySelectorAll<HTMLButtonElement>('[data-menu-item]')
+      menuItems[focusedIndex]?.focus()
     }
   }, [focusedIndex, open])
 
@@ -56,14 +58,34 @@ export function DropdownMenu({ trigger, items, align = 'left' }: DropdownMenuPro
     } else if (e.key === 'ArrowUp') {
       e.preventDefault()
       setFocusedIndex((i) => (i - 1 + items.length) % items.length)
+    } else if (e.key === 'Home') {
+      e.preventDefault()
+      setFocusedIndex(0)
+    } else if (e.key === 'End') {
+      e.preventDefault()
+      setFocusedIndex(items.length - 1)
+    }
+  }
+
+  function handleTriggerKeyDown(e: React.KeyboardEvent) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault()
+      setOpen(!open)
+      setFocusedIndex(-1)
     }
   }
 
   return (
     <div ref={containerRef} className="relative inline-block" onKeyDown={handleKeyDown}>
       <span
+        ref={triggerRef}
         data-testid="dropdown-trigger"
+        role="button"
+        tabIndex={0}
+        aria-haspopup="menu"
+        aria-expanded={open}
         onClick={() => { setOpen(!open); setFocusedIndex(-1) }}
+        onKeyDown={handleTriggerKeyDown}
       >
         {trigger}
       </span>

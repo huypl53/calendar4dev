@@ -150,10 +150,38 @@ export function AppShell({ children }: AppShellProps) {
           )}
           <aside
             data-testid="sidebar"
+            aria-modal={sidebarOpen}
+            aria-label="Navigation sidebar"
             className={`fixed top-0 left-0 z-50 h-full flex flex-col border-r border-[var(--color-border)] bg-[var(--color-bg-secondary)] transition-transform duration-200 ease-in-out ${
               sidebarOpen ? 'translate-x-0' : '-translate-x-full'
             }`}
             style={{ width: 'var(--density-sidebar-width)' }}
+            onKeyDown={(e) => {
+              if (!sidebarOpen) return
+              if (e.key === 'Escape') {
+                setSidebarOpen(false)
+                return
+              }
+              // Focus trap: keep Tab/Shift+Tab within the sidebar
+              if (e.key === 'Tab') {
+                const el = e.currentTarget
+                const focusable = Array.from(
+                  el.querySelectorAll<HTMLElement>(
+                    'a,button,[tabindex]:not([tabindex="-1"])',
+                  ),
+                ).filter((n) => !n.hasAttribute('disabled'))
+                if (focusable.length === 0) { e.preventDefault(); return }
+                const first = focusable[0]!
+                const last = focusable[focusable.length - 1]!
+                if (e.shiftKey && document.activeElement === first) {
+                  e.preventDefault()
+                  last.focus()
+                } else if (!e.shiftKey && document.activeElement === last) {
+                  e.preventDefault()
+                  first.focus()
+                }
+              }
+            }}
           >
             <Sidebar embedded={false} />
           </aside>

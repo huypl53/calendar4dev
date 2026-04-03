@@ -73,24 +73,24 @@ export function Header() {
         {dateLabel}
       </span>
 
-      <nav className="ml-auto flex gap-1" data-testid="view-switcher">
+      <nav className="ml-auto flex gap-1" data-testid="view-switcher" aria-label="Calendar views">
         <Link to="/day/$date" params={{ date }}>
-          <Button size="sm" variant={view === 'day' ? 'primary' : 'ghost'} data-testid="view-day">
+          <Button size="sm" variant={view === 'day' ? 'primary' : 'ghost'} data-testid="view-day" aria-current={view === 'day' ? 'page' : undefined}>
             Day
           </Button>
         </Link>
         <Link to="/week/$date" params={{ date }}>
-          <Button size="sm" variant={view === 'week' ? 'primary' : 'ghost'} data-testid="view-week">
+          <Button size="sm" variant={view === 'week' ? 'primary' : 'ghost'} data-testid="view-week" aria-current={view === 'week' ? 'page' : undefined}>
             Week
           </Button>
         </Link>
         <Link to="/month/$date" params={{ date }}>
-          <Button size="sm" variant={view === 'month' ? 'primary' : 'ghost'} data-testid="view-month">
+          <Button size="sm" variant={view === 'month' ? 'primary' : 'ghost'} data-testid="view-month" aria-current={view === 'month' ? 'page' : undefined}>
             Month
           </Button>
         </Link>
         <Link to="/schedule">
-          <Button size="sm" variant={view === 'schedule' ? 'primary' : 'ghost'} data-testid="view-schedule">
+          <Button size="sm" variant={view === 'schedule' ? 'primary' : 'ghost'} data-testid="view-schedule" aria-current={view === 'schedule' ? 'page' : undefined}>
             Schedule
           </Button>
         </Link>
