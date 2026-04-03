@@ -9,13 +9,15 @@ interface TimeGridProps {
   days?: string[]
   /** Events to render on the grid */
   events?: CalendarEvent[]
+  /** calendarId → color for event coloring */
+  calendarColorMap?: Record<string, string>
   /** Called when a grid cell is clicked with the date and hour */
   onCellClick?: (date: string, hour: number) => void
   /** Called when an event block is clicked */
   onEventClick?: (event: CalendarEvent) => void
 }
 
-export function TimeGrid({ dayCount, todayIndex, days, events, onCellClick, onEventClick }: TimeGridProps) {
+export function TimeGrid({ dayCount, todayIndex, days, events, calendarColorMap, onCellClick, onEventClick }: TimeGridProps) {
   const hours = Array.from({ length: 24 }, (_, i) => i)
 
   // Group events by day column index
@@ -36,7 +38,7 @@ export function TimeGrid({ dayCount, todayIndex, days, events, onCellClick, onEv
             style={{ height: 'var(--density-row-height)' }}
             onClick={() => {
               if (onCellClick && days?.[col]) {
-                onCellClick(days[col], hour)
+                onCellClick(days[col]!, hour)
               }
             }}
           >
@@ -63,7 +65,12 @@ export function TimeGrid({ dayCount, todayIndex, days, events, onCellClick, onEv
           >
             <div className="pointer-events-auto relative h-full">
               {colEvents.map((event) => (
-                <EventBlock key={event.id} event={event} onClick={onEventClick} />
+                <EventBlock
+                  key={`${event.id}-${colIdx}`}
+                  event={event}
+                  onClick={onEventClick}
+                  color={calendarColorMap?.[event.calendarId]}
+                />
               ))}
             </div>
           </div>
@@ -86,15 +93,17 @@ export function TimeGrid({ dayCount, todayIndex, days, events, onCellClick, onEv
   )
 }
 
-/** Group events by which day column they belong to, based on their startTime date */
+/** Group events by day column — multi-day events appear in every column they span */
 function groupEventsByDay(events: CalendarEvent[], days: string[]): Record<number, CalendarEvent[]> {
   const result: Record<number, CalendarEvent[]> = {}
   for (const event of events) {
-    const eventDate = event.startTime.slice(0, 10) // YYYY-MM-DD from ISO
-    const colIdx = days.indexOf(eventDate)
-    if (colIdx >= 0) {
-      if (!result[colIdx]) result[colIdx] = []
-      result[colIdx].push(event)
+    const startDate = event.startTime.slice(0, 10)
+    const endDate = event.endTime.slice(0, 10)
+    for (let i = 0; i < days.length; i++) {
+      const day = days[i]!
+      if (day >= startDate && day <= endDate) {
+        ;(result[i] ??= []).push(event)
+      }
     }
   }
   return result

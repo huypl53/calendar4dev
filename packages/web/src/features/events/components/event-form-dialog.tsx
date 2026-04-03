@@ -77,6 +77,10 @@ export function EventFormDialog({
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (!title.trim() || !startTime || !endTime || !calendarId) return
+    if (new Date(endTime) <= new Date(startTime)) {
+      toast('End time must be after start time', 'error')
+      return
+    }
 
     if (isEdit) {
       updateMutation.mutate(
@@ -121,6 +125,7 @@ export function EventFormDialog({
 
   function handleDelete() {
     if (!event) return
+    if (!window.confirm(`Delete "${event.title}"?`)) return
     deleteMutation.mutate(event.id, {
       onSuccess: () => {
         toast('Event deleted', 'success')

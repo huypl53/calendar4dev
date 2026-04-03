@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useParams } from '@tanstack/react-router'
 import { getWeekDays, getTodayDate } from '../../../lib/date-utils.js'
 import { useEventsQuery } from '../../events/hooks/use-events-query.js'
+import { useCalendarsQuery } from '../../calendars/hooks/use-calendars-query.js'
 import { EventFormDialog } from '../../events/components/event-form-dialog.js'
 import { WeekHeader } from './week-header.js'
 import { TimeGutter } from './time-gutter.js'
@@ -14,10 +15,16 @@ export function WeekView() {
   const todayIndex = days.indexOf(getTodayDate())
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const { data: events } = useEventsQuery({
+  const { data: events, isLoading } = useEventsQuery({
     startDate: days[0],
     endDate: days[6],
   })
+  const { data: calendars } = useCalendarsQuery()
+
+  const calendarColorMap: Record<string, string> = {}
+  for (const cal of calendars ?? []) {
+    calendarColorMap[cal.id] = cal.color
+  }
 
   const [createDialog, setCreateDialog] = useState<{ open: boolean; start: string; end: string }>({
     open: false,
@@ -59,17 +66,24 @@ export function WeekView() {
         className="flex-1 overflow-auto"
         data-testid="week-scroll-container"
       >
-        <div className="grid" style={{ gridTemplateColumns: 'var(--density-gutter-width) 1fr' }}>
-          <TimeGutter />
-          <TimeGrid
-            dayCount={7}
-            todayIndex={todayIndex >= 0 ? todayIndex : undefined}
-            days={days}
-            events={events}
-            onCellClick={handleCellClick}
-            onEventClick={handleEventClick}
-          />
-        </div>
+        {isLoading ? (
+          <div className="flex h-full items-center justify-center">
+            <span className="text-[length:var(--font-size-small)] text-[var(--color-text-tertiary)]">Loading…</span>
+          </div>
+        ) : (
+          <div className="grid" style={{ gridTemplateColumns: 'var(--density-gutter-width) 1fr' }}>
+            <TimeGutter />
+            <TimeGrid
+              dayCount={7}
+              todayIndex={todayIndex >= 0 ? todayIndex : undefined}
+              days={days}
+              events={events}
+              calendarColorMap={calendarColorMap}
+              onCellClick={handleCellClick}
+              onEventClick={handleEventClick}
+            />
+          </div>
+        )}
       </div>
 
       <EventFormDialog

@@ -1,4 +1,4 @@
-import { eq, and, gte, lt } from 'drizzle-orm'
+import { eq, and, gte, lt, inArray } from 'drizzle-orm'
 import { db } from '../db/client.js'
 import { events } from '../db/schema/events.js'
 import { calendars } from '../db/schema/calendars.js'
@@ -68,8 +68,6 @@ export async function listEvents(
     }
     conditions.push(eq(events.calendarId, filters.calendarId))
   } else {
-    // Import inArray for multi-calendar filtering
-    const { inArray } = await import('drizzle-orm')
     conditions.push(inArray(events.calendarId, calendarIds))
   }
 

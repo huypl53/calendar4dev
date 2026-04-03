@@ -14,7 +14,10 @@ export const createEventSchema = z.object({
   visibility: z.enum(EVENT_VISIBILITY_VALUES).optional(),
   eventType: z.enum(EVENT_TYPE_VALUES).optional(),
   recurrenceRule: z.string().nullable().optional(),
-})
+}).refine(
+  (d) => new Date(d.endTime) > new Date(d.startTime),
+  { message: 'endTime must be after startTime', path: ['endTime'] },
+)
 
 export type CreateEvent = z.infer<typeof createEventSchema>
 
