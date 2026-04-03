@@ -146,6 +146,28 @@ The app uses a CSS custom property-based design token system. All tokens are def
 - **Form fields**: Title (required), start/end datetime, description, calendar selector
 - **Toast notifications**: Success/error feedback for all event operations
 
+**Command Palette & Keyboard Shortcuts:**
+- `Cmd/Ctrl+K` — Open fuzzy-search command palette for quick navigation and actions
+- `d/w/m/s` — Switch to day/week/month/schedule view
+- `t` — Go to today
+- `c` — Create new event
+- `j/k` — Navigate prev/next in current view
+- `?` — Show keyboard shortcut help dialog
+
+**Sidebar:**
+- Mini calendar with month navigation and date click-to-navigate
+- Calendar list with color indicators
+- Appearance settings (theme, density, accent color, default view)
+
+**Recurring Events:**
+- Events can repeat daily, weekly, or monthly
+- Recurring events show ↻ indicator on calendar views
+
+**Accessibility:**
+- Focus-visible outlines for keyboard navigation
+- Reduced motion support via `prefers-reduced-motion`
+- Semantic HTML5 landmarks
+
 **Routes** (all require authentication):
 - `/week/:date` — Week view (default)
 - `/day/:date` — Day view
@@ -172,3 +194,25 @@ The app uses a CSS custom property-based design token system. All tokens are def
 | `GET /api/events/:id` | Get a single event |
 | `PATCH /api/events/:id` | Update an event |
 | `DELETE /api/events/:id` | Delete an event |
+
+## CLI
+
+A terminal-based client for managing your calendar:
+
+```bash
+# Build the CLI
+pnpm --filter @dev-calendar/cli build
+
+# Set environment
+export DEVCAL_API_URL=http://localhost:3001
+export DEVCAL_AUTH_TOKEN=your-session-token
+
+# List calendars
+devcal calendars list [--json]
+
+# List this week's events
+devcal events list [--json]
+
+# Create an event
+devcal events create "Team Standup" "2026-04-03T09:00" "2026-04-03T09:30" cal-id-here
+```

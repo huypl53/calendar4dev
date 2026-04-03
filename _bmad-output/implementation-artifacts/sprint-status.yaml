@@ -93,37 +93,46 @@ development_status:
   # Epic 5: Command Palette & Keyboard Navigation
   # FRs: FR19, FR58-FR61
   # Users can perform all operations via Cmd+K and keyboard shortcuts
-  epic-5: backlog
+  epic-5: done
+  5-1-command-palette: done
+  5-2-keyboard-shortcuts: done
+  5-3-shortcut-help-dialog: done
   epic-5-retrospective: optional
 
   # Epic 6: Calendar Organization & Sidebar
   # FRs: FR44-FR48, FR55
   # Users can create/manage multiple calendars with colors and 30-day trash
-  epic-6: backlog
+  epic-6: done
+  6-1-calendar-list-sidebar: done
+  6-2-mini-calendar: done
   epic-6-retrospective: optional
 
   # Epic 7: Status Bar, Real-Time Sync & Ambient Awareness
   # FRs: FR62, FR63, FR111
   # Users see real-time ambient information and WebSocket sync across tabs
-  epic-7: backlog
+  epic-7: done
+  7-1-status-bar-enhancements: done
   epic-7-retrospective: optional
 
   # Epic 8: Recurring Events
   # FRs: FR25, FR26
   # Users can create recurring events with RRULE and edit instances
-  epic-8: backlog
+  epic-8: done
+  8-1-recurrence-ui: done
   epic-8-retrospective: optional
 
   # Epic 9: Settings, Personalization & Accessibility Baseline
   # FRs: FR43, FR107
   # Users can configure view preferences and experience baseline accessibility
-  epic-9: backlog
+  epic-9: done
+  9-1-view-preferences: done
   epic-9-retrospective: optional
 
   # Epic 10: CLI & REST API
   # FRs: FR84-FR90
   # Developers can manage calendar from terminal with full REST API
-  epic-10: backlog
+  epic-10: done
+  10-1-cli-tool: done
   epic-10-retrospective: optional
 
   # === Phase 2 (Collaboration) ===
