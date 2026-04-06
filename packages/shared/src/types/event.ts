@@ -1,11 +1,10 @@
-export const EVENT_TYPE_VALUES = ['standard', 'all_day', 'task', 'reminder', 'out_of_office', 'focus_time', 'working_location'] as const
+export const EVENT_TYPE_VALUES = ['standard', 'task', 'reminder', 'out_of_office', 'focus_time', 'working_location'] as const
 export const EVENT_STATUS_VALUES = ['busy', 'free'] as const
 export const EVENT_VISIBILITY_VALUES = ['public', 'private'] as const
 export const EXCEPTION_TYPE_VALUES = ['cancelled', 'modified'] as const
 
 export const EventType = {
   standard: 'standard',
-  all_day: 'all_day',
   task: 'task',
   reminder: 'reminder',
   out_of_office: 'out_of_office',
