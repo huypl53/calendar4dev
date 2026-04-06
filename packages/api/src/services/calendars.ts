@@ -1,7 +1,7 @@
 import { eq, and, isNull } from 'drizzle-orm'
 import { randomBytes } from 'node:crypto'
 import { db } from '../db/client.js'
-import { calendars } from '../db/schema/calendars.js'
+import { calendars, calendarMembers } from '../db/schema/calendars.js'
 import { NotFoundError, ForbiddenError } from '../lib/errors.js'
 
 export async function getOrCreateShareToken(calendarId: string, userId: string): Promise<string> {
@@ -42,14 +42,22 @@ export async function bootstrapCalendar(userId: string) {
   if (existing) return existing
 
   try {
-    const [calendar] = await db.insert(calendars).values({
-      userId,
-      name: 'Personal',
-      isPrimary: true,
-      color: '#2f81f7',
-    }).returning()
+    return await db.transaction(async (tx) => {
+      const [calendar] = await tx.insert(calendars).values({
+        userId,
+        name: 'Personal',
+        isPrimary: true,
+        color: '#2f81f7',
+      }).returning()
 
-    return calendar!
+      await tx.insert(calendarMembers).values({
+        calendarId: calendar!.id,
+        userId,
+        permissionLevel: 'admin',
+      })
+
+      return calendar!
+    })
   } catch {
     // Handle race condition: if concurrent request already inserted, fetch it
     const fallback = await db.query.calendars.findFirst({

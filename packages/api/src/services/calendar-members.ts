@@ -7,11 +7,10 @@ import type { AddCalendarMember, UpdateCalendarMember } from '@dev-calendar/shar
 
 type MemberPermission = 'details' | 'edit' | 'admin'
 
-/** Ensure requester is owner or has admin permission */
+/** Ensure requester has admin permission (owner is always inserted as admin on calendar creation) */
 async function assertOwnerOrAdmin(calendarId: string, requesterId: string) {
   const cal = await db.query.calendars.findFirst({ where: eq(calendars.id, calendarId) })
   if (!cal) throw new NotFoundError('Calendar not found')
-  if (cal.userId === requesterId) return cal
 
   const membership = await db.query.calendarMembers.findFirst({
     where: and(eq(calendarMembers.calendarId, calendarId), eq(calendarMembers.userId, requesterId)),
@@ -28,10 +27,6 @@ export async function addMember(calendarId: string, data: AddCalendarMember, req
   // Look up user by email
   const targetUser = await db.query.users.findFirst({ where: eq(users.email, data.email) })
   if (!targetUser) throw new NotFoundError(`No user found with email ${data.email}`)
-
-  // Prevent adding the owner as a member
-  const cal = await db.query.calendars.findFirst({ where: eq(calendars.id, calendarId) })
-  if (cal?.userId === targetUser.id) throw new ConflictError('Cannot add calendar owner as a member')
 
   // Check if already a member
   const existing = await db.query.calendarMembers.findFirst({
@@ -125,7 +120,7 @@ export async function listSharedCalendars(userId: string) {
   const results = await Promise.all(
     memberships.map(async (m) => {
       const cal = await db.query.calendars.findFirst({ where: eq(calendars.id, m.calendarId) })
-      if (!cal) return null
+      if (!cal || cal.userId === userId) return null  // exclude calendars the user owns
       const owner = await db.query.users.findFirst({ where: eq(users.id, cal.userId) })
       return {
         ...cal,
