@@ -1,3 +1,5 @@
+import { supabase } from './supabase.js'
+
 const BASE_URL = import.meta.env.VITE_API_URL || ''
 
 class ApiError extends Error {
@@ -12,12 +14,13 @@ class ApiError extends Error {
 }
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const { data: { session } } = await supabase.auth.getSession()
   const { headers: extraHeaders, ...rest } = options ?? {}
   const res = await fetch(`${BASE_URL}${path}`, {
-    credentials: 'include',
     ...rest,
     headers: {
       'Content-Type': 'application/json',
+      ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
       ...(extraHeaders as Record<string, string>),
     },
   })
