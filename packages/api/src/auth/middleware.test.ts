@@ -1,12 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { Hono } from 'hono'
 
-const mockGetSession = vi.fn()
+const mockGetUser = vi.fn()
 
-vi.mock('./config.js', () => ({
-  auth: {
-    api: {
-      getSession: (...args: unknown[]) => mockGetSession(...args),
+vi.mock('../lib/supabase.js', () => ({
+  supabaseAdmin: {
+    auth: {
+      getUser: (token: string) => mockGetUser(token),
     },
   },
 }))
@@ -26,11 +26,10 @@ function createApp() {
 
 describe('requireAuth middleware', () => {
   beforeEach(() => {
-    mockGetSession.mockReset()
+    mockGetUser.mockReset()
   })
 
   it('returns 401 with standard error shape for unauthenticated requests', async () => {
-    mockGetSession.mockResolvedValue(null)
     const app = createApp()
     const res = await app.request('/api/protected')
     expect(res.status).toBe(401)
@@ -41,49 +40,61 @@ describe('requireAuth middleware', () => {
   })
 
   it('passes through authenticated requests', async () => {
-    mockGetSession.mockResolvedValue({
-      user: { id: 'user-1', email: 'test@example.com' },
-      session: { id: 'session-1' },
+    mockGetUser.mockResolvedValue({
+      data: { user: { id: 'user-1', email: 'test@example.com' } },
+      error: null,
     })
     const app = createApp()
-    const res = await app.request('/api/protected')
+    const res = await app.request('/api/protected', {
+      headers: { Authorization: 'Bearer valid-token' },
+    })
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.data).toBe('secret')
   })
 
-  it('returns 401 when getSession throws', async () => {
-    mockGetSession.mockRejectedValue(new Error('DB connection failed'))
+  it('returns 401 when getUser throws', async () => {
+    mockGetUser.mockRejectedValue(new Error('Network error'))
     const app = createApp()
-    const res = await app.request('/api/protected')
+    const res = await app.request('/api/protected', {
+      headers: { Authorization: 'Bearer bad-token' },
+    })
     expect(res.status).toBe(401)
     const body = await res.json()
     expect(body.error.code).toBe('UNAUTHORIZED')
   })
 
+  it('returns 401 when getUser returns error', async () => {
+    mockGetUser.mockResolvedValue({
+      data: { user: null },
+      error: { message: 'Invalid JWT' },
+    })
+    const app = createApp()
+    const res = await app.request('/api/protected', {
+      headers: { Authorization: 'Bearer expired-token' },
+    })
+    expect(res.status).toBe(401)
+  })
+
   it('blocks /api/docs-admin (not an exact public path match)', async () => {
-    mockGetSession.mockResolvedValue(null)
     const app = createApp()
     const res = await app.request('/api/docs-admin')
     expect(res.status).toBe(401)
   })
 
   it('allows /api/openapi.json without auth', async () => {
-    mockGetSession.mockResolvedValue(null)
     const app = createApp()
     const res = await app.request('/api/openapi.json')
     expect(res.status).toBe(200)
   })
 
   it('allows /api/docs without auth', async () => {
-    mockGetSession.mockResolvedValue(null)
     const app = createApp()
     const res = await app.request('/api/docs')
     expect(res.status).toBe(200)
   })
 
   it('allows /api/auth/* without auth', async () => {
-    mockGetSession.mockResolvedValue(null)
     const app = createApp()
     const res = await app.request('/api/auth/get-session')
     expect(res.status).toBe(200)

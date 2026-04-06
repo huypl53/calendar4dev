@@ -3,7 +3,7 @@ import { addCalendarMemberSchema, updateCalendarMemberSchema } from '@dev-calend
 import { ValidationError } from '../lib/errors.js'
 import * as membersService from '../services/calendar-members.js'
 
-type AppEnv = { Variables: { user: { id: string }; session: unknown } }
+type AppEnv = { Variables: { user: { id: string } } }
 
 function serializeMember(m: Record<string, unknown>) {
   return {

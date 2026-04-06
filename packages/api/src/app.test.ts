@@ -6,13 +6,13 @@ vi.mock('./db/client.js', () => ({
   },
 }))
 
-vi.mock('./auth/config.js', () => ({
-  auth: {
-    handler: vi.fn().mockResolvedValue(new Response(JSON.stringify({ ok: true }), { status: 200 })),
-    api: {
-      getSession: vi.fn().mockResolvedValue(null),
+vi.mock('./lib/supabase.js', () => ({
+  supabaseAdmin: {
+    auth: {
+      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: { message: 'not authenticated' } }),
     },
   },
+  supabaseAnon: {},
 }))
 
 import { app } from './app.js'

@@ -14,14 +14,14 @@ describe('users table schema', () => {
     expect(columnNames).toContain('id')
     expect(columnNames).toContain('email')
     expect(columnNames).toContain('name')
-    expect(columnNames).toContain('emailVerified')
-    expect(columnNames).toContain('image')
     expect(columnNames).toContain('createdAt')
     expect(columnNames).toContain('updatedAt')
   })
 
-  it('does not have passwordHash (moved to accounts)', () => {
+  it('does not have Better Auth columns (emailVerified, image, passwordHash)', () => {
     const columnNames = config.columns.map(c => c.name)
+    expect(columnNames).not.toContain('emailVerified')
+    expect(columnNames).not.toContain('image')
     expect(columnNames).not.toContain('passwordHash')
   })
 
@@ -36,15 +36,8 @@ describe('users table schema', () => {
     expect(emailCol.isUnique).toBe(true)
   })
 
-  it('has name and image as nullable', () => {
+  it('has name as nullable', () => {
     const nameCol = config.columns.find(c => c.name === 'name')!
-    const imageCol = config.columns.find(c => c.name === 'image')!
     expect(nameCol.notNull).toBe(false)
-    expect(imageCol.notNull).toBe(false)
-  })
-
-  it('has cuid2 default function on id', () => {
-    const idCol = config.columns.find(c => c.name === 'id')!
-    expect(idCol.hasDefault).toBe(true)
   })
 })

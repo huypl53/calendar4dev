@@ -3,7 +3,7 @@ import { createEventSchema, updateEventSchema } from '@dev-calendar/shared'
 import { ValidationError } from '../lib/errors.js'
 import * as eventService from '../services/events.js'
 
-type AppEnv = { Variables: { user: { id: string }; session: unknown } }
+type AppEnv = { Variables: { user: { id: string } } }
 
 function serializeEvent(event: Record<string, unknown>) {
   return {
