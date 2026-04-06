@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { ValidationError } from '../lib/errors.js'
 import * as userService from '../services/user.js'
 
-type AppEnv = { Variables: { user: { id: string }; session: unknown } }
+type AppEnv = { Variables: { user: { id: string } } }
 
 const app = new Hono<AppEnv>()
 

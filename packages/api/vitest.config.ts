@@ -5,8 +5,9 @@ export default defineConfig({
     env: {
       DATABASE_URL: 'postgresql://postgres:postgres@localhost:5432/devcalendar_test',
       NODE_ENV: 'test',
-      BETTER_AUTH_SECRET: 'test-secret-that-is-at-least-32-characters-long',
-      BETTER_AUTH_URL: 'http://localhost:3001',
+      SUPABASE_URL: 'https://test.supabase.co',
+      SUPABASE_SERVICE_ROLE_KEY: 'test-service-role-key',
+      SUPABASE_ANON_KEY: 'test-anon-key',
     },
   },
 })

@@ -4,7 +4,7 @@ import * as eventService from '../services/events.js'
 import { serializeICS, parseICS } from '../lib/ics.js'
 import { ValidationError } from '../lib/errors.js'
 
-type AppEnv = { Variables: { user: { id: string }; session: unknown } }
+type AppEnv = { Variables: { user: { id: string } } }
 
 function serializeCalendar(cal: Record<string, unknown>) {
   return {
