@@ -11,6 +11,8 @@ export const envSchema = z.object({
   BETTER_AUTH_URL: z.string().url(),
   GITHUB_CLIENT_ID: z.string().optional(),
   GITHUB_CLIENT_SECRET: z.string().optional(),
+  SUPABASE_URL: z.string().url().optional(),
+  SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
 }).refine(
   (env) => (!env.GITHUB_CLIENT_ID && !env.GITHUB_CLIENT_SECRET) || (!!env.GITHUB_CLIENT_ID && !!env.GITHUB_CLIENT_SECRET),
   { message: 'GITHUB_CLIENT_ID and GITHUB_CLIENT_SECRET must both be set or both be omitted', path: ['GITHUB_CLIENT_ID'] },
